@@ -138,6 +138,7 @@ public class UnsynchronizedArray<E>
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Array<E> a) {
+        // TODO -- you fill in here (replace 'return false' with proper code).
         return false;
     }
 
