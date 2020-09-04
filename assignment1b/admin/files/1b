@@ -1,0 +1,10 @@
+image-crawler/src/main/java/edu/vanderbilt/imagecrawler/utils/UnsynchronizedArray.java
+image-crawler/src/main/java/edu/vanderbilt/imagecrawler/utils/ArraySpliterator.java
+
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/UnsynchronizedArrayIteratorTestsBase.kt
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/UnsynchronizedArrayIteratorTestsForUndergrads.kt
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/UnsynchronizedArraySpliteratorTestsBase.kt
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/UnsynchronizedArraySpliteratorTestsForGrads.kt
+image-crawler/src/test/java/assignmentTests/optionalTests/SequentialLoopsLocalCrawlTest.kt
+app/src/androidTest/java/assignmentTests/Assignment1bTests.kt
+README-1b.html
