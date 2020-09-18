@@ -825,7 +825,7 @@ class UnsynchronizedArrayTests : AssignmentTests() {
 
         array.forEach(Consumer {
             if (++calls > maxCalls) {
-                fail("Your solution iterates past then end of the mElementData array!")
+                fail("You should not use mElementData in your forEach solution!")
             }
             result.add(it)
         })
