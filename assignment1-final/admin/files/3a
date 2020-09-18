@@ -1,6 +1,0 @@
-image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/ForkJoinCrawler1.java
-
-image-crawler/src/test/java/edu/vanderbilt/imagecrawler/crawlers/ForkJoinCrawler1Tests.kt
-image-crawler/src/test/java/assignmentTests/optionalTests/ForkJoin1LocalCrawlTest.kt
-app/src/androidTest/java/assignmentTests/Assignment3aTests.kt
-README-3a.html
