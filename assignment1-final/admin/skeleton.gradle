@@ -1,0 +1,776 @@
+/**
+ * Gradle is really stupid about how it handles external build scripts
+ * like this one. It's basically impossible to use import statements in
+ * external build scripts, so as a workaround, all references to grgit
+ * use full package names instead of import statements. That works, but
+ * Gradle needs to improve how they handle external build scripts.
+ */
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath "org.ajoberstar:grgit:1.9.3"
+    }
+}
+
+import static groovy.io.FileType.FILES
+
+def adminGroup = '[admin]'
+def adminSupportGroup = '[admin support]'
+def testGroup = '[test]'
+
+static def solution(branch) { "$branch-solution" }
+
+static def skeleton(branch) { "$branch-skeleton" }
+
+ext.grgit = org.ajoberstar.grgit.Grgit.open(dir: "$projectDir")
+ext.master = 'master'
+ext.exclude = 'exclude'
+ext.graderDir = "$projectDir/grader"
+ext.adminDir = "$projectDir/admin"
+ext.filesDir = "$adminDir/files"
+ext.graderBuildDir = file("$projectDir/../grader/").absoluteFile
+ext.buildFiles = ['AUTOGRADER_SUBMISSION', 'GRADE', 'log']
+ext.MODULE = "image-crawler"
+
+/**
+ * Ordered list of branch solution files located in admin/files.
+ */
+def getAssignments() {
+    def branchNames = ['1a', '1b', '2a', '2b', '2c', '3a', '3b', '4', 'rx']
+    validateSolutionFiles(branchNames.toSet())
+    return branchNames
+}
+
+def validateSolutionFiles(branchNames) {
+    def solutionFiles = file(filesDir)
+            .listFiles()
+            .findAll { it.name != exclude }
+            .collect { it.name }.toSet()
+    if (solutionFiles != branchNames) {
+        throw new GradleException("assignment names in skeletong.gradle " +
+                "do not match files in admin/files.")
+    }
+}
+
+task changeToMasterBranch {
+    group adminSupportGroup
+    doLast {
+        checkoutBranch(master)
+        ensureMasterBranch()
+    }
+}
+
+/**
+ * Each assignment gets its own private build-solution
+ * and private build-skeleton task which are both run
+ * from the public [admin] group build- tasks.
+ */
+getAssignments().each { it ->
+    String branch = it
+    def solution = solution(branch)
+    def skeleton = skeleton(branch)
+    def buildTaskName = "build-$branch"
+    def buildSolutionTaskName = "build-$solution"
+    def buildSkeletonTaskName = "build-$skeleton"
+
+    /**
+     * Public facing task
+     */
+    task(buildTaskName) {
+        group adminGroup
+        dependsOn buildSkeletonTaskName
+    }
+
+    task(buildSolutionTaskName) {
+        dependsOn 'gitEnsureClean'
+
+        // Both grader install and run tasks already full builds
+        // so only do a post build if the grader isn't installed.
+        if (!graderBuildDir.isDirectory()) {
+            def buildTask = tasks.findByPath("$MODULE:build")
+            finalizedBy buildTask
+        }
+
+        doFirst {
+            createNewBranch(solution, master, true)
+            assert isCurrentBranch(solution)
+            removeSolutionFiles(branch)
+            addAssignmentFile(branch)
+            if (installGrader(branch)) {
+                grgit.add(patterns: ['grader'])
+                commitBranch("$solution: Installed grader.")
+                runGrader()
+                grgit.add(patterns: ['GRADE'])
+                commitBranch("$solution: Added grader results file.")
+            } else {
+                commitBranch()
+            }
+        }
+    }
+
+    task(buildSkeletonTaskName) {
+        dependsOn buildSolutionTaskName
+
+        doFirst {
+            createNewBranch(skeleton, solution, true)
+            assert isCurrentBranch(skeleton)
+            removeSolutionCode(branch)
+            removeBuildFiles()
+            commitBranch()
+            checkoutBranch('master')
+        }
+    }
+}
+
+task installGrader {
+    group adminSupportGroup
+    doFirst {
+        if (installGrader(currentBranch())) {
+            grgit.add(patterns: ['grader'])
+            commitBranch("Installed grader.", true)
+            runGrader()
+            grgit.add(patterns: ['GRADE'])
+            commitBranch("Added grader results file.", true)
+        }
+    }
+}
+
+/**
+ * Since Gradle makes it impossible to run a single task more than once,
+ * the only way to ensure that the build and test tasks are run for each
+ * created solution branch is to execute each branch build task from the
+ * command line.
+ */
+task('build-all') {
+    group adminGroup
+    dependsOn 'gitEnsureClean'
+
+    doFirst {
+        println "Building all solutions and skeletons ..."
+        getAssignments().each { branch ->
+            def skeleton = skeleton(branch)
+            def buildSkeletonTask = "build-$skeleton"
+            execGradle(null, buildSkeletonTask)
+        }
+    }
+}
+
+task listAllBranches {
+    group adminSupportGroup
+    doFirst {
+        def branches = grgit.branch.list(
+                mode: org.ajoberstar.grgit.operation.BranchListOp.Mode.ALL)
+        branches.each {
+            println "${it.fullName} -> ${it.trackingBranch}"
+        }
+    }
+}
+
+def installGrader(branch) {
+    println "$branch: installing grader ..."
+
+    if (graderBuildDir.isDirectory()) {
+        removeFile(graderDir, false)
+        execGradle(graderBuildDir, "-PtargetDir=$projectDir", 'runInstaller')
+        true
+    } else {
+        project.logger.warn("$branch: grader project not found.")
+        false
+    }
+}
+
+def addGraderResults(branch) {
+    println "$branch: adding grader results to git change list ..."
+    grgit.add(patterns: ['grader'])
+}
+
+def runGrader() {
+    println "${currentBranch()}: running grader ..."
+    if (!file(graderDir).isDirectory()) {
+        project.logger.warn("${currentBranch()}: grader not installed.")
+        return false
+    }
+
+    execGradle(null, 'runAutograder')
+
+    checkGraderResult()
+
+    return true
+}
+
+def checkGraderResult(branch) {
+    def gradeFile = file("$projectDir/GRADE")
+    if (!gradeFile.isFile()) {
+        throw new GradleException("$branch: missing ${gradeFile.path}")
+    }
+
+    def pattern = ~/([0-9]+)\/([0-9]+)/
+    def grade = gradeFile.text
+    def matcher = pattern.matcher(grade)
+
+    matcher.find()
+
+    if (matcher.size() == 1 && matcher[0].size == 2) {
+        throw new GradleException(
+                "GRADE file must contain a single line matching the pattern: ${pattern.pattern()}")
+    }
+
+    int passed = matcher[0][1].toInteger()
+    int total = matcher[0][2].toInteger()
+    int failed = total - passed
+
+    if (failed > 0) {
+        throw new GradleException(
+                "$branch: The grader detected ${failed} failed test${failed != 1 ? "s" : ""}")
+    }
+}
+
+def removeBuildFiles(branch) {
+    println "$branch: Removing temporary files ..."
+    buildFiles.each { removeFile(it, false) }
+}
+
+task deleteSkeletons {
+    group adminSupportGroup
+    doFirst {
+        def deleted = 0
+        getAssignments().each {
+            deleted += deleteBranch(skeleton(it)) ? 1 : 0
+        }
+
+        println "$deleted skeleton branch${deleted != 1 ? 'es' : ''}"
+    }
+}
+
+task deleteSolutions {
+    group adminSupportGroup
+    doFirst {
+        def deleted = 0
+        getAssignments().each {
+            deleteBranch(solution(it))
+        }
+        println "$deleted solution branch${deleted != 1 ? 'es' : ''}"
+    }
+}
+
+task 'delete-all' {
+    group adminGroup
+    dependsOn deleteSkeletons, deleteSolutions
+}
+
+task zipBranch(type: Zip, group: adminSupportGroup) {
+    description = "Compresses your entire project into the zip archive zip/${project.name}.zip."
+    def branchName = "${project.name}-${currentBranch()}"
+
+    from projectDir
+    into branchName
+
+    archiveBaseName.set(branchName)
+
+    include 'build.gradle'
+    include 'gradle.properties'
+    include 'gradlew'
+    include 'gradlew.bat'
+    include 'settings.gradle'
+    include 'gradle/**'
+
+    exclude 'build'
+    exclude '.gradle'
+    exclude '.idea'
+    exclude '*.iml'
+    exclude 'local.properties'
+
+    include 'app/**'
+    exclude 'app/*.iml'
+    exclude 'app/build'
+
+    destinationDir file('zip')
+
+    doLast {
+        println "Zip file location: ${projectDir}/zip/"
+    }
+}
+
+task gitEnsureClean(group: adminSupportGroup) {
+    doFirst {
+        ensureCleanGitRepo()
+    }
+}
+
+task gitEnsureMaster(group: adminSupportGroup) {
+    doFirst {
+        ensureMasterBranch()
+    }
+}
+
+task gitRevert(group: adminSupportGroup) {
+    description = 'Reverts all uncommited changes.'
+
+    doFirst {
+        grgit.reset(commit: 'HEAD', mode: 'HARD')
+    }
+}
+
+task gradleSync(type: GradleBuild, group: adminSupportGroup) {
+    doFirst {
+        buildName "runTaskGradleSync"
+        dir projectDir
+        def param = new StartParameter()
+        param.setRefreshDependencies(true)
+        setTasks(['tasks'])
+    }
+}
+
+def execGradle(File dir, Object... args) {
+    exec {
+        def cmd = []
+
+        if (System.getProperty("os.name").toLowerCase().contains('windows')) {
+            cmd.addAll('cmd', '/c', 'gradlew.bat')
+        } else {
+            // Make sure that gradlew is executable.
+            def gradlew = new File(rootDir, "gradlew")
+            if (!gradlew.canExecute()) {
+                gradlew.setExecutable(true)
+            }
+            cmd.addAll('./gradlew')
+        }
+
+        cmd.addAll(args)
+
+        if (dir != null) {
+            workingDir dir
+        }
+
+        commandLine cmd
+    }
+}
+
+def ensureCleanGitRepo() {
+    def status = grgit.status()
+    if (!status.clean) {
+        println "${project.name} GIT repository is ${status.clean ? 'CLEAN' : 'DIRTY'}:"
+        println "     staged:    added    -> ${status.staged.added}"
+        println "                modified -> ${status.staged.modified}"
+        println "                removed  -> ${status.staged.removed}"
+        println "     unstaged:  added    -> ${status.unstaged.added}"
+        println "                modified -> ${status.unstaged.modified}"
+        println "                removed  -> ${status.unstaged.removed}"
+        println "     conflicts: ${status.conflicts}"
+        throw new GradleException("You need to commit all changes before running this task " +
+                "or else run the gitRevert task! (See git status above)")
+    }
+}
+
+def stripSolution(file, startTag, endTag, lineTag, dryRun) {
+    def text = file.text
+    def dirty = false
+    def actualEndTag = endTag?.length() > 0 ? endTag : startTag
+
+    if (startTag?.length() > 0) {
+        if (text.contains(startTag as String)) {
+            def matcher = text =~ /(?s)(.*?)\n\s*$startTag.*?(\n[ \t]*)$actualEndTag[ ]*/
+            if (!matcher.find()) {
+                printFileText(file.name, text)
+                throw new GradleException("${file.name}: Unable to remove source " +
+                        "code solution block (missing $actualEndTag).")
+            }
+            text = matcher.replaceAll('$1$2')
+            dirty = true
+        }
+    }
+
+    if (lineTag?.length() > 0) {
+        if (text.contains(lineTag as String)) {
+            def matcher = text =~ /(?s)(.*?)$lineTag[ \t]*([^\n]*\n)([^\n]*\n)/
+            if (!matcher.find()) {
+                printFileText(file.name, text)
+                throw new GradleException("${file.name}: Unable to remove source code solution line.")
+            }
+            text = matcher.replaceAll('$1$2')
+            dirty = true
+        }
+    }
+
+    if (dirty) {
+        // Finally, check if any tags remain (improperly defined blocks)
+        if (startTag?.length() > 0 && text.contains(startTag)) {
+            throw new GradleException("${file.name}: failed to remove all $startTag tags.")
+        }
+        if (endTag?.length() > 0 && text.contains(endTag)) {
+            throw new GradleException("${file.name}: failed to remove all $endTag tags.")
+        }
+        if (lineTag?.length() > 0 && text.contains(lineTag)) {
+            throw new GradleException("${file.name}: failed to remove all $lineTag tags.")
+        }
+
+        if (!dryRun) {
+            // Save changes
+            file.text = text
+        }
+    }
+
+    return dirty
+}
+
+def printFileText(name, text) {
+    println ""
+    println "--------------------------------------------------------------------------------"
+    println "SKELETON: $name"
+    println "--------------------------------------------------------------------------------"
+    text.readLines().each {
+        println it
+    }
+}
+
+/**
+ *
+ * Regular expression that recursively removes solution blocks and lines
+ * from all files in the passed directory.
+ *
+ * Note: that this regular expression will not handle nested tag pairs.
+ *
+ * EXAMPLE:
+ *
+ *  public Object add(int a, int b)  {*      int x = 1;
+ *      // TODO - you fill in here.
+ *      // SOLUTION-LINE
+ *      int removeThisLine = 2;
+ *      int keepThis = 3;
+ *
+ *      // TODO - you fill in here.
+ *      // SOLUTION-LINE int replaceThis = -1; // TODO: Change -1 to the correct value.
+ *      int replaceThis = 4;
+ *
+ *      // TODO - you fill in here.
+ *      // SOLUTION-START
+ *      int solution = a + b;
+ *      return solution;
+ *      // SOLUTION-END return -1; // TODO you replace -1 with the appropriate value
+ *}*  RESULT:
+ *
+ *  public Object add(int a, int b) {*      int x = 1;
+ *      // TODO - you fill in here.
+ *
+ *      int keepThis = 3;
+ *
+ *      // TODO - you fill in here.
+ *      int replaceThis = -1; // TODO: Change -1 to the correct value.
+ *
+ *      // TODO - you fill in here.
+ *
+ *     return -1; // TODO you replace -1 with the appropriate value
+ *}*/
+def removeSolutionCode(branch, dryRun = false) {
+    def changedFiles = []
+
+    def todoStartTag = "// SOLUTION-START"
+    def todoEndTag = "// SOLUTION-END"
+    def todoLineTag = "// SOLUTION-LINE"
+
+    getSolutionFiles(branch).each {
+        def entry = file("$projectDir/$it")
+        if (entry.isDirectory()) {
+            entry.eachFileRecurse(groovy.io.FileType.FILES) {
+                if (stripSolution(file(it), todoStartTag, todoEndTag, todoLineTag, dryRun)) {
+                    changedFiles << it
+                }
+            }
+        } else if (stripSolution(file(it), todoStartTag, todoEndTag, todoLineTag, dryRun)) {
+            changedFiles << it
+        }
+    }
+
+    def count = changedFiles.size()
+
+    if (count == 0) {
+        throw new IllegalStateException("${project.name}: No solution code was " +
+                "${dryRun ? "found in" : "removed from "} this project!")
+    }
+    if (dryRun) {
+        project.logger.warn("$branch: solution code found in the " +
+                "following $count ${count == 1 ? "file" : " $count files"}")
+    } else if (count > 0) {
+        project.logger.warn("$branch: solution code was removed from $count files")
+    }
+}
+
+
+/**
+ * @return All files in main source sets of all sub-projects.
+ */
+def getSourceFiles() {
+    def files = []
+    subprojects {
+        if (getExtensions().findByName('android') != null) {
+            def main = getExtensions().findByName('android').sourceSets?.findByName('main')
+            main.java.srcDirs.each {
+                if (it.isDirectory()) {
+                    it.eachFileRecurse(groovy.io.FileType.FILES) {
+                        files << it
+                    }
+                }
+            }
+        } else if (getExtensions().findByName('java') != null) {
+            sourceSets?.findByName('main')?.allSource?.getFiles()?.each { files << it }
+        }
+    }
+
+    return files
+}
+
+def removeSolutionFiles(branch) {
+    def allSolutionFiles = getSolutionFiles(null)
+    def branchSolutionFiles = getSolutionFiles(branch)
+
+    // Ensures that even where duplicates may exist,
+    // no branch solution files will ever get removed.
+    def filesToRemove = allSolutionFiles - branchSolutionFiles
+
+    println "Removing solution files ..."
+    filesToRemove.each { removeFile(it) }
+
+    println "Removing excluded files ..."
+    getExcludeFiles().each { removeFile(it, false) }
+}
+
+def removeFile(path, shouldExist = true) {
+    //grgit.remove(patterns: [path])
+    def file = file(path)
+    if (file.isDirectory()) {
+        file.deleteDir()
+    } else if (file.isFile()) {
+        file.delete()
+    } else if (shouldExist) {
+        throw new GradleException("Unable to remove $file: file not found.")
+    }
+
+    if (file.exists()) {
+        throw new GradleException("Unable to delete file $file")
+    }
+}
+
+def branchExists(branch) {
+    grgit.branch.list().find { it.getName() == branch } != null
+}
+
+def createNewBranch(branch, startPoint = master, checkout = true) {
+    ensureNotMasterBranch(branch)
+    ensureCleanGitRepo()
+
+    if (branchExists(branch)) {
+        println "Deleting $branch ..."
+        deleteBranch(branch)
+    }
+
+    println "Creating $branch from $startPoint ..."
+    grgit.branch.add(name: branch, startPoint: startPoint)
+
+    if (checkout) {
+        checkoutBranch(branch)
+    }
+}
+
+def deleteBranch(branch, push = false) {
+    ensureNotMasterBranch(branch)
+
+    if (branchExists(branch)) {
+        if (isCurrentBranch(branch)) {
+            checkoutBranch(master)
+        }
+
+        println "Deleting branch $branch ..."
+
+        def branchObject = grgit.resolve.toBranch(branch)
+        def deletedList = grgit.branch.remove(names: [branch], force: true)
+        if (push && deletedList != null && deletedList[0] != null) {
+            grgit.push(refsOrSpecs: [":${branchObject.fullName}"])
+        }
+        return true
+    }
+
+    return false
+}
+
+/**
+ * Returns all branch solution files along with all exclude files
+ * that currently exist (forgiving if an old non-existent file is
+ * named in exclude file).
+ */
+def getExcludeFiles() {
+    readFileList('exclude')
+            .findAll { !file(it).exists() }
+            .each { project.logger.warn("$it: does not exist.") }
+
+    readFileList('exclude').findAll { file(it).exists() }
+}
+
+/**
+ * Returns all assignment solution files up to and including the
+ * passed [branch] or [null] for all cumulative assignment files.
+ */
+def getSolutionFiles(branch, removeDuplicates = true) {
+    if (branch != null) {
+        ensureNotMasterBranch(branch)
+    }
+
+    def results = []
+
+    for (def name : getAssignments()) {
+        readFileList(name).each {
+            results << it
+        }
+        if (name == branch) {
+            break
+        }
+    }
+
+    return removeDuplicates ? results.toSet() : results.toSet()
+}
+
+task listDuplicateSolutionFiles(group: adminSupportGroup) {
+    doFirst {
+        def result = []
+
+        for (def branch : getAssignments()) {
+            readFileList(branch).each { file ->
+                result.add(branch: branch, file: file)
+            }
+        }
+
+        result.groupBy {
+            it.file
+        }.collect {
+            [it.key, it.value.branch]
+        }.findAll {
+            it[1].size() > 1
+        }.each {
+            println it
+        }
+    }
+}
+
+task testGetBranchSolutionSets(group: adminSupportGroup) {
+    doFirst {
+        getBranchSolutionSets(null).each {
+            println "${it.name} : ${it.files}"
+        }
+    }
+}
+
+def readFileList(branch) {
+    ensureNotMasterBranch(branch)
+
+    def result = []
+    def inputFile = file("${filesDir}/$branch")
+    assert inputFile.isFile()
+    inputFile.readLines().each {
+        if (!it.isAllWhitespace()) {
+            result.add(it)
+        }
+    }
+
+    return result
+}
+
+def ensureNotMasterBranch(branch) {
+    assertValidBranchName(branch)
+
+    if (branch?.contains(master)) {
+        throw new GradleException("Achtung Verboten!! - $master found in branch name $branch!")
+    }
+}
+
+def ensureMasterBranch() {
+    if (!isCurrentBranch(master)) {
+        Thread.currentThread().getStackTrace().each { println it }
+        throw new GradleException("Not on $master branch!")
+    }
+}
+
+def assertValidBranchName(branch) {
+    assert branch != null && !branch.isAllWhitespace()
+}
+
+def isCurrentBranch(branch) {
+    return grgit.branch.current.name == branch
+}
+
+def currentBranch() {
+    return grgit.branch.current.name
+}
+
+def checkoutBranch(branch) {
+    ensureCleanGitRepo()
+    assertValidBranchName(branch)
+
+    if (!branchExists(branch)) {
+        throw new GradleException("Unable to checkout branch $branch: branch does not exist.")
+    }
+
+    if (isCurrentBranch(branch)) {
+        println "WARNING: checkoutBranch - $branch is already checked out."
+    } else {
+        println "Checking out $branch ..."
+        grgit.checkout(branch: branch)
+    }
+}
+
+def commitBranch(message = 'Created.', allowMaster = false, push = false) {
+    allowMaster || ensureNotMasterBranch(currentBranch())
+
+    println "Committing branch ${currentBranch()} ..."
+    grgit.commit(message: message, all: true)
+    if (push) {
+        grgit.push()
+    }
+    ensureCleanGitRepo()
+}
+
+//task generateTestSources {
+//    inputs.property "version", project.version
+//    outputs.dir "$buildDir/generated"
+//    doFirst {
+//    }
+//}
+
+def addAssignmentFile(assignment) {
+    def assignments = getAssignments()
+    assert assignment in assignments
+
+    def enums = ""
+    assignments.forEach {
+        if (enums != "") {
+            enums += ",\n        "
+        }
+        enums += "Assignment$it"
+    }
+
+    def clazz = "Assignment"
+    def dir = "$projectDir/$MODULE/src/main/java"
+    def pkg = "edu.vanderbilt.imagecrawler.utils"
+    def assignmentFile = file("$dir/${pkg.replace('.', '/')}/${clazz}.kt")
+    assignmentFile.text = "package ${pkg}\n\n" +
+            "object $clazz {\n" +
+            "    enum class Name { \n" +
+            "        $enums,\n" +
+            "        all\n" +
+            "    }\n\n" +
+            "    @JvmStatic\n" +
+            "    var version = Name.Assignment$assignment\n\n" +
+            "    @JvmStatic\n" +
+            "    fun includes(name: Name): Boolean = name.ordinal <= version.ordinal\n\n" +
+            "    @JvmStatic\n" +
+            "    fun `is`(name: Name) = includes(name)\n\n" +
+            "    @JvmStatic\n" +
+            "    fun isAssignment(name: Name) = `is`(name)\n\n" +
+            "    @JvmStatic\n" +
+            "    fun isUndergraduate(name: Name) = isUndergraduate() && isAssignment(name)\n\n" +
+            "    @JvmStatic\n" +
+            "    fun isGraduate(name: Name) = isGraduate() && isAssignment(name)\n\n" +
+            "    @JvmStatic\n" +
+            "    fun isUndergraduate() = Student.isUndergraduate()\n\n" +
+            "    @JvmStatic\n" +
+            "    fun isGraduate() = Student.isGraduate()\n" +
+            "}"
+}

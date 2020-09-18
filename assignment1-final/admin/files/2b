@@ -1,0 +1,10 @@
+image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/ParallelStreamsCrawler1.java
+image-crawler/src/main/java/edu/vanderbilt/imagecrawler/utils/ArrayCollector.java
+
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/crawlers/ParallelStreamsCrawler1Tests.kt
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/ArrayCollectorTestsBase.kt
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/ArrayCollectorTestsForGrads.kt
+image-crawler/src/test/java/edu/vanderbilt/imagecrawler/utils/ArrayCollectorTestsForUndergrads.kt
+image-crawler/src/test/java/assignmentTests/optionalTests/ParallelStreams1LocalCrawlTest.kt
+app/src/androidTest/java/assignmentTests/Assignment2bTests.kt
+README-2b.html
