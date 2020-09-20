@@ -21,7 +21,7 @@ import org.mockito.stubbing.OngoingStubbing
 /**
  * Base class used for all assignment test classes
  */
-open class AssignmentTests(timeoutSeconds: Int = 5) {
+open class AssignmentTests(timeoutSeconds: Int = 10) {
     /** Required for all mockito tests */
     @Rule
     @JvmField
