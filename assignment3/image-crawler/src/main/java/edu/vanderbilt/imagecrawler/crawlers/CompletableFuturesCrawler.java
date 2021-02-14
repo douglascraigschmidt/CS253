@@ -1,7 +1,11 @@
 package edu.vanderbilt.imagecrawler.crawlers;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -9,8 +13,6 @@ import edu.vanderbilt.imagecrawler.utils.Array;
 import edu.vanderbilt.imagecrawler.utils.Crawler;
 import edu.vanderbilt.imagecrawler.utils.FuturesCollectorStream;
 import edu.vanderbilt.imagecrawler.utils.Image;
-
-import static edu.vanderbilt.imagecrawler.utils.Crawler.Type.PAGE;
 
 /**
  * This implementation strategy uses Java's functional programming
@@ -28,7 +30,7 @@ public class CompletableFuturesCrawler
      */
     // TODO -- you fill in here replacing this statement with your solution.
     protected CompletableFuture<Integer> mZero =
-        null;
+        CompletableFuture.completedFuture(0);
 
     /**
      * Perform the web crawl.
@@ -44,7 +46,7 @@ public class CompletableFuturesCrawler
         // only method in this class that should call join().
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+        return performCrawlAsync(pageUri,depth).join();
     }
 
     /**
@@ -140,7 +142,7 @@ public class CompletableFuturesCrawler
         // the mWebPageCrawler field.
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return CompletableFuture.supplyAsync(() -> mWebPageCrawler.getPage(pageUri));
     }
 
     /**
@@ -160,7 +162,10 @@ public class CompletableFuturesCrawler
         // fluent chain of asynchronous completion stage methods.
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        // compose is flatten the completableFuture
+        return pageFuture
+                .thenApply(this::getImagesOnPage)
+                .thenCompose(this::processImages);
     }
 
     /**
@@ -183,7 +188,7 @@ public class CompletableFuturesCrawler
         // in the page.
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+       return pageFuture.thenCompose(page -> crawlHyperLinksOnPage(page, depth));
     }
 
     /**
@@ -204,7 +209,7 @@ public class CompletableFuturesCrawler
         // they complete asynchronously.
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return imagesOnPageFuture.thenCombine(imagesOnPageLinksFuture, Integer::sum);
     }
 
     /**
@@ -228,7 +233,13 @@ public class CompletableFuturesCrawler
 
         // TODO -- you fill in here replacing this statement with your
         // solution.
-        return null;
+
+        // TODO examine whether this call blocks
+        return page.getPageElementsAsStrings(Crawler.Type.PAGE)
+                .stream()
+                .map(url -> performCrawlAsync(url, depth))
+                .collect(FuturesCollectorStream.toFuture())
+                .thenApply(yy -> yy.reduce(Integer::sum).get());
     }
 
     /**
@@ -253,7 +264,13 @@ public class CompletableFuturesCrawler
 
         // TODO -- you fill in here replacing this statement with your
         // solution.
-        return null;
+        return urls.stream()
+                .map(this::downloadAndStoreImageAsync)
+                .map(this::transformImageAsync)
+                .map(futureImageStream -> futureImageStream.thenApply(Stream::count))
+                .collect(FuturesCollectorStream.toFuture())
+                .thenApply(streamLong -> streamLong.map(Long::intValue).reduce(Integer::sum).get());
+
     }
 
     /**
@@ -276,6 +293,12 @@ public class CompletableFuturesCrawler
         // and applyTransformAsync()).
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return imageFuture.thenApply(
+                image -> mTransforms.stream()
+                        .filter(transform -> createNewCacheItem(image, transform))
+                        .map(tt -> applyTransformAsync(tt, image))
+                        .filter(Objects::nonNull)
+                        .collect(FuturesCollectorStream.toFuture())
+        ).thenCompose(Function.identity());
     }
 }

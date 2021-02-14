@@ -21,5 +21,15 @@
       <option name="name" value="Google" />
       <option name="url" value="https://dl.google.com/dl/android/maven2/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="DDC Artifactory All Repos" />
+      <option name="name" value="DDC Artifactory All Repos" />
+      <option name="url" value="https://artifactory.coxautoinc.com/artifactory/ddc-maven" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="MavenLocal" />
+      <option name="name" value="MavenLocal" />
+      <option name="url" value="file:$MAVEN_REPOSITORY$/repository/" />
+    </remote-repository>
   </component>
 </project>

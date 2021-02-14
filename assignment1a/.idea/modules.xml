@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="assignment1a/app" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/assignment1a.iml" filepath="$PROJECT_DIR$/.idea/modules/assignment1a.iml" group="assignment1a" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/image-crawler/image-crawler.iml" filepath="$PROJECT_DIR$/.idea/modules/image-crawler/image-crawler.iml" group="assignment1a/image-crawler" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/assignment1a.iml" filepath="$PROJECT_DIR$/.idea/modules/assignment1a.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/assignment1a.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/assignment1a.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/image-crawler/assignment1a.image-crawler.iml" filepath="$PROJECT_DIR$/.idea/modules/image-crawler/assignment1a.image-crawler.iml" />
     </modules>
   </component>
 </project>

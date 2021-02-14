@@ -1,9 +1,13 @@
 package edu.vanderbilt.imagecrawler.crawlers;
 
 import java.net.URL;
+import java.util.Objects;
 
 import edu.vanderbilt.imagecrawler.utils.Crawler;
 import edu.vanderbilt.imagecrawler.utils.Image;
+
+import static edu.vanderbilt.imagecrawler.utils.Crawler.Type.IMAGE;
+import static edu.vanderbilt.imagecrawler.utils.Crawler.Type.PAGE;
 
 /**
  * This ImageCrawler implementation uses Java parallel streams to
@@ -78,7 +82,18 @@ public class ParallelStreamsCrawler1 // Loaded via reflection
         // Return a count of all the images downloaded, processed, and
         // stored.
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+        int count = page.getPageElements(IMAGE, PAGE)
+                .parallelStream()
+                .map(e -> {
+                    if (e.getType() == IMAGE) {
+                        return processImage(e.getURL());
+                    } else {
+                        return performCrawl(e.getUrl(), depth + 1);
+                    }
+                })
+                .mapToInt(Integer::intValue).sum();
+
+        return count;
     }
 
     /**
@@ -107,7 +122,22 @@ public class ParallelStreamsCrawler1 // Loaded via reflection
         }
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+
+        return (int) mTransforms.parallelStream()
+                .map(transform -> {
+                    // Attempt to create a new cache item for this transform
+                    // and only apply the transform if a new cache item was
+                    // actually created (i.e., was not already in the cache).
+                    if (createNewCacheItem(image, transform)) {
+                        // Apply the transformation to the image.
+                        return applyTransform(transform, image);
+                        // Update the transformed images count.
+                    }
+                    return null;
+
+                })
+                .filter(Objects::nonNull)
+                .count();
     }
 }
 

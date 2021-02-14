@@ -18,7 +18,7 @@ import static edu.vanderbilt.imagecrawler.utils.Crawler.Type.PAGE;
  * sequentially in a single thread of control.
  */
 public class SequentialStreamsCrawler // Loaded via reflection
-       extends ImageCrawler {
+        extends ImageCrawler {
     /**
      * Recursively crawls the given page and returns the total number
      * of processed images.
@@ -66,10 +66,25 @@ public class SequentialStreamsCrawler // Loaded via reflection
      */
     protected int crawlPage(String pageUri, int depth) {
         log("[" + Thread.currentThread().getName()
-            + "] Crawling " + pageUri + " (depth " + depth + ")");
+                + "] Crawling " + pageUri + " (depth " + depth + ")");
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+
+        Crawler.Page page = mWebPageCrawler.getPage(pageUri);
+
+        int count = page.getPageElements(IMAGE, PAGE)
+                .stream()
+                .map(e -> {
+                    if (e.getType() == IMAGE) {
+                        return processImage(e.getURL());
+                    } else {
+                        performCrawl(e.getUrl(), depth + 1);
+                        return 0;
+                    }
+                })
+                .mapToInt(Integer::intValue).sum();
+
+        return count;
     }
 
     /**
@@ -81,15 +96,38 @@ public class SequentialStreamsCrawler // Loaded via reflection
      */
     protected int processImage(URL url) {
         // Use a Java sequential stream to:
-        // 1. Download the image from the given url.
-        // 2. Convert the transforms array into stream.
-        // 3. Try to create a new cached image item for each
+        // 1. Convert the transforms array into stream.
+        // 2. Try to create a new cached image item for each
         //    transform skipping any that already cached.
-        // 4. Transform and store each non-cached image.
-        // 5. Return the count of transformed images (don't count any 
-        //    images that fail to download or transform correctly).
+        // 3. Transform and store each non-cached image (via map()).
+        // 4. Return the count of transformed images (don't count any
+        //    images that fail to download correctly).
 
         // TODO -- you fill in here replacing this statement with your solution.
+
+        Image image = getOrDownloadImage(url);
+        // Apply any transforms to this image that have not already
+        // been previously applied and cached.
+        if(image != null){
+            long xx = mTransforms.stream()
+                    .map(transform -> {
+                        // Attempt to create a new cache item for this transform
+                        // and only apply the transform if a new cache item was
+                        // actually created (i.e., was not already in the cache).
+                        if (createNewCacheItem(image, transform)) {
+                            // Apply the transformation to the image.
+                            return applyTransform(transform, image);
+                            // Update the transformed images count.
+                        }
+                        return null;
+
+                    })
+                    .filter(Objects::nonNull)
+                    .count();
+
+            return (int) xx;
+        }
         return 0;
     }
 }
+

@@ -12,7 +12,7 @@ public class Assignment {
      * TODO: (Graduates) set the static sTypes field below to the value GRADUATE.
      * TODO: (undergraduates) set the static sTypes field below to the value UNDERGRADUATE.
      */
-    public static int sTypes = UNDERGRADUATE | GRADUATE;
+    public static int sTypes = GRADUATE;
 
     public static boolean isGraduateTodo() {
         return (sTypes & GRADUATE) == GRADUATE;

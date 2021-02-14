@@ -23,7 +23,7 @@ import static edu.vanderbilt.imagecrawler.utils.Crawler.Type.PAGE;
  * manner.
  */
 public class ParallelStreamsCrawler2 // Loaded via reflection
-       extends ImageCrawler {
+        extends ImageCrawler {
     /**
      * Perform the web crawl.
      *
@@ -70,12 +70,13 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
      */
     protected int crawlPage(String pageUri, int depth) {
         log("[" + Thread.currentThread().getName()
-            + "] Crawling " + pageUri + " (depth " + depth + ")");
+                + "] Crawling " + pageUri + " (depth " + depth + ")");
 
         // Get the HTML page associated with pageUri (properly handle
         // a null return value).
         // TODO -- you fill in here.
-        
+        Crawler.Page page = mWebPageCrawler.getPage(pageUri);
+
 
         // Use a Java parallel stream to return the number of
         // processed images by the following steps:
@@ -86,9 +87,14 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
         // 2. Run the stream elements (lambdas) in parallel.
         // 3. Invoke each function lambda mapping the result to an Integer.
         // 4. Return the total number of processed images.
-        // 
+        //
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+
+        return streamOfTasks(depth)
+                .parallel()
+                .map(f -> f.apply(page))
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     /**
@@ -103,7 +109,7 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
         // Return a stream of 2 function lambdas: one that processes
         // images and the other that processes hyperlinks.
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return Stream.of(makeImagesOnPageFunction(), makeHyperLinksOnPageFunction(depth));
     }
 
     /**
@@ -118,7 +124,7 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
         // processes all images on a page and returns the count of
         // processed images.
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return page -> processImages(getImagesOnPage(page));
     }
 
     /**
@@ -133,10 +139,10 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
         // A function lambda that receives a page and recursively
         // crawls hyperlinks that are on this page and counts the
         // number of processed images from each hyperlink. You will
-        // pass an adjusted depth value to reflect the depth of the
+        // pass an adjust depth value to reflect the depth of the
         // children hyperlinks on this page.
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return page -> crawlHyperLinksOnPage(page, depth);
     }
 
     /**
@@ -158,7 +164,11 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
         // 5. Return the number of successfully transformed images.
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+        return (int)urls.parallelStream()
+                .map(this::getOrDownloadImage)
+                .filter(Objects::nonNull)
+                .flatMap(this::transformImage)
+                .count();
     }
 
     /**
@@ -171,10 +181,12 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
     protected Integer crawlHyperLinksOnPage(Crawler.Page page, int depth) {
         log("Performing parallel crawl of hyperlinks on page ...");
 
-        // Use a Java parallel stream that invokes performCrawl() to
-        // crawl through hyperlinks on this page and returns the total
-        // number of processed images.  This parallel stream returns
-        // the number of processed images by the following steps:
+        // Use a Java stream that invokes performCrawl() to crawl
+        // through hyperlinks on this page and returns the total
+        // number of processed images.
+
+        // Use a Java parallel stream to return the number of
+        // processed images by the following steps:
         //
         // 1. Get all hyperlinks on this page as an array of Strings.
         // 2. Convert the array to parallel streams.
@@ -183,7 +195,12 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
         // 4. Return the total number of processed images.
         //
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+
+        return  page.getPageElementsAsStrings(PAGE)
+                .parallelStream()
+                .map(url -> crawlPage(url, depth))
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     /**
@@ -195,20 +212,34 @@ public class ParallelStreamsCrawler2 // Loaded via reflection
      */
     protected Stream<Image> transformImage(Image image) {
         log("Performing %d parallel transforms of image %s ...",
-            mTransforms.size(),
-            image.getSourceUrl());
+                mTransforms.size(),
+                image.getSourceUrl());
 
         // Use a Java parallel stream to perform the following steps:
         //
         // 1. Convert the transforms list into a parallel stream.
         // 2. Attempt to create a new cache item for each image,
         //    filtering out any image that has already been locally
-        //    cached. 
+        //    cached.
         // 3. Apply the transform to the original image to produce
         //    a transformed image.
         // 4. Return a stream of all non-null transformed images.
         //
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+
+        return mTransforms
+                .parallelStream()
+                .filter(t -> createNewCacheItem(image, t))
+                .map(tt -> applyTransform(tt, image))
+                .filter(Objects::nonNull);
+
+//                .map(transform -> {
+//                        if (createNewCacheItem(image, transform)) {
+//                            return applyTransform(transform, image);
+//                        }
+//                        return null;
+//
+//                 }).filter(Objects::nonNull);
+
     }
 }

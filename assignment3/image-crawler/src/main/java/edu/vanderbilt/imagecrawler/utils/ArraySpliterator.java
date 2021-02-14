@@ -14,19 +14,19 @@ public final class ArraySpliterator<E>
      * The array to traverse and/or partition.
      */
     // TODO (graduates 1b and undergraduates 2a) - you fill in here.
-    
+    private Array<E> array;
 
     /**
      * Current index, modified on advance/split.
      */
     // TODO (graduates 1b and undergraduates 2a) - you fill in here.
-    
+    private int index;
 
     /**
      * One past the end of the spliterator range.
      */
     // TODO (graduates 1b and undergraduates 2a) - you fill in here.
-    
+    private int fence;
 
     /**
      * Create new spliterator covering the given range.
@@ -38,7 +38,9 @@ public final class ArraySpliterator<E>
                 Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED);
 
         // TODO (graduates 1b and undergraduates 2a) - you fill in here.
-        
+        this.array = array;
+        this.index = origin;
+        this.fence = end;
     }
 
     /**
@@ -49,6 +51,18 @@ public final class ArraySpliterator<E>
     public boolean tryAdvance(Consumer<? super E> action) {
         // TODO (graduates 1b and undergraduates 2a)
         //  you fill in here replacing this statement with your solution.
+        if(action == null){
+            throw new NullPointerException();
+        }
+
+        int hi = getFence(), i = index;
+        if (i < hi) {
+            index = i + 1;
+            E e = (E)array.uncheckedToArray()[i];
+            action.accept(e);
+
+            return true;
+        }
         return false;
     }
 
@@ -59,6 +73,20 @@ public final class ArraySpliterator<E>
     public ArraySpliterator<E> trySplit() {
         // TODO (graduates 1b and undergraduates 2a)
         //  you fill in here replacing this statement with your solution.
-        return null;
+        int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
+        return (lo >= mid) ? null : // divide range in half unless too small
+                new ArraySpliterator<E>(array, lo, index = mid);
+    }
+    private int getFence() { // initialize fence to size on first use
+        int hi; // (a specialized variant appears in method forEach)
+        Array<E> lst;
+        if ((hi = fence) < 0) {
+            if ((lst = array) == null)
+                hi = fence = 0;
+            else {
+                hi = fence = lst.size();
+            }
+        }
+        return hi;
     }
 }

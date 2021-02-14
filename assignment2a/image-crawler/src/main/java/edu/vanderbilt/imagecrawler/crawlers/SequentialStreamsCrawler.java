@@ -1,6 +1,8 @@
 package edu.vanderbilt.imagecrawler.crawlers;
 
 import java.net.URL;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import edu.vanderbilt.imagecrawler.utils.Crawler;
 import edu.vanderbilt.imagecrawler.utils.Image;
@@ -68,7 +70,22 @@ public class SequentialStreamsCrawler // Loaded via reflection
             + "] Crawling " + pageUri + " (depth " + depth + ")");
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return 0;
+
+        Crawler.Page page = mWebPageCrawler.getPage(pageUri);
+
+        int count = page.getPageElements(IMAGE, PAGE)
+                .stream()
+                .map(e -> {
+                        if (e.getType() == IMAGE) {
+                            return processImage(e.getURL());
+                        } else {
+                            performCrawl(e.getUrl(), depth + 1);
+                            return 0;
+                        }
+                    })
+                .mapToInt(Integer::intValue).sum();
+
+        return count;
     }
 
     /**
@@ -88,6 +105,29 @@ public class SequentialStreamsCrawler // Loaded via reflection
         //    images that fail to download correctly).
 
         // TODO -- you fill in here replacing this statement with your solution.
+
+        Image image = getOrDownloadImage(url);
+        // Apply any transforms to this image that have not already
+        // been previously applied and cached.
+        if(image != null){
+            long xx = mTransforms.stream()
+                    .map(transform -> {
+                        // Attempt to create a new cache item for this transform
+                        // and only apply the transform if a new cache item was
+                        // actually created (i.e., was not already in the cache).
+                        if (createNewCacheItem(image, transform)) {
+                            // Apply the transformation to the image.
+                            return applyTransform(transform, image);
+                            // Update the transformed images count.
+                        }
+                        return null;
+
+                    })
+                    .filter(Objects::nonNull)
+                    .count();
+
+            return (int) xx;
+        }
         return 0;
     }
 }

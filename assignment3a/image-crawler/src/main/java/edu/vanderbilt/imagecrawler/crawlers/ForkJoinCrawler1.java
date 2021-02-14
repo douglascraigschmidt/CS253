@@ -5,9 +5,11 @@ import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
+import java.util.stream.Collectors;
 
 import edu.vanderbilt.imagecrawler.transforms.Transform;
 import edu.vanderbilt.imagecrawler.utils.Array;
+import edu.vanderbilt.imagecrawler.utils.ArrayCollector;
 import edu.vanderbilt.imagecrawler.utils.Crawler;
 import edu.vanderbilt.imagecrawler.utils.Image;
 import edu.vanderbilt.imagecrawler.utils.UnsynchronizedArray;
@@ -40,7 +42,7 @@ public class ForkJoinCrawler1 extends ImageCrawler {
     protected <T> Array<ForkJoinTask<T>> makeForkJoinArray() {
         // TODO -- Undergraduate fill in here replacing this statement
         //  with your solution (graduates should not change this method).
-        return null;
+        return new UnsynchronizedArray<>();
     }
 
     /**
@@ -73,7 +75,7 @@ public class ForkJoinCrawler1 extends ImageCrawler {
     protected ForkJoinTask<Image> makePerformTransformTask(Image image,
                                                            Transform transform) {
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return new PerformTransformTask(image, transform);
     }
 
     /**
@@ -84,7 +86,7 @@ public class ForkJoinCrawler1 extends ImageCrawler {
      */
     protected ProcessImageTask makeProcessImageTask(String url) {
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return new ProcessImageTask(url);
     }
 
     /**
@@ -96,7 +98,7 @@ public class ForkJoinCrawler1 extends ImageCrawler {
      */
     protected URLCrawlerTask makeURLCrawlerTask(String pageUri, int depth) {
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return new URLCrawlerTask(pageUri, depth);
     }
 
     /**
@@ -165,7 +167,33 @@ public class ForkJoinCrawler1 extends ImageCrawler {
 
                 // TODO -- you fill in here replacing this statement
                 //  with your solution.
-                return 0;
+
+                Array<ForkJoinTask<Integer>> forks = page.getPageElements(IMAGE, PAGE).stream().map(webPageElement -> {
+                    String url = webPageElement.getUrl();
+                    if (webPageElement.getType() == IMAGE) {
+                        return makeProcessImageTask(url);
+                    } else {
+                        return makeURLCrawlerTask(url, mDepth + 1);
+                    }
+                }).map(ForkJoinTask::fork).collect(toArray());
+
+                Long counts = forks.stream()
+                        .map(ForkJoinTask::join)
+                        .filter(Objects::nonNull)
+                        .count();
+
+                return counts.intValue();
+
+//               return  page.getPageElements(IMAGE, PAGE).stream().mapToInt(webPageElement -> {
+//                    String url = webPageElement.getUrl();
+//                    if (webPageElement.getType() == IMAGE){
+//
+//
+//                        return ForkJoinPool.commonPool().invoke(makeProcessImageTask(url));
+//                    }else {
+//                        return ForkJoinPool.commonPool().invoke(makeURLCrawlerTask(url, mDepth+1));
+//                    }
+//                }).sum();
             } else if (isUndergraduate()) {
                 // Use the makeForkJoinArray() factory method to
                 // create an empty array of ForkJoinTasks used to
@@ -265,8 +293,11 @@ public class ForkJoinCrawler1 extends ImageCrawler {
 
                     // TODO -- you fill in here replacing this statement
                     //  with your solution.
-                    Array<ForkJoinTask<Image>> forks =
-                    null;
+                    Array<ForkJoinTask<Image>> forks = mTransforms.stream()
+                            .map(transform -> makePerformTransformTask(rawImage, transform))
+                            .map(ForkJoinTask::fork)
+                            .collect(ArrayCollector.toArray());
+
 
                     // Use a Java sequential stream to join all the
                     // forked tasks and count the number of non-null
@@ -274,8 +305,11 @@ public class ForkJoinCrawler1 extends ImageCrawler {
 
                     // TODO -- you fill in here replacing this
                     //  statement with your solution.
-                    transformedImages +=
-                    0;
+                    transformedImages += forks.stream()
+                            .map(ForkJoinTask::join)
+                            .filter(Objects::nonNull)
+                            .count();
+
                 } else if (isUndergraduate()) {
                     // Use the makeForkJoinArray() factory method to
                     // create an array of ForkJoinTasks that will
@@ -347,6 +381,9 @@ public class ForkJoinCrawler1 extends ImageCrawler {
 
             // TODO -- you fill in here replacing this statement
             //  with your solution.
+            if(createNewCacheItem(mImage, mTransform)){
+               return applyTransform(mTransform, mImage);
+            }
             return null;
         }
     }
