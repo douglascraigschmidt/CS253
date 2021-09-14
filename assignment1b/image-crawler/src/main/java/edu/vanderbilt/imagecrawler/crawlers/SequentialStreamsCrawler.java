@@ -105,7 +105,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
         // Return a count of of all images processed on/from this page.
         // TODO -- you fill in here replacing this statement with your
         // solution.
-        return null;
+        return 0;
     }
 
     /**
