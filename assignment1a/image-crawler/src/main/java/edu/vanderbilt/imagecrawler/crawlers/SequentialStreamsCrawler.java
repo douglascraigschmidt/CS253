@@ -47,8 +47,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
         // 4. Use a terminal operation to get the total number of
         //    processed images from the one-element stream.
 
-        // TODO -- you fill in here replacing this statement with your
-        //  solution.
+        // TODO -- you fill in here replacing this statement with your solution.
         return 0;
     }
 
@@ -74,8 +73,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
         log("[" + Thread.currentThread().getName()
             + "] Crawling " + pageUri + " (depth " + depth + ")");
 
-        // TODO -- you fill in here replacing this statement with your
-        //  solution.
+        // TODO -- you fill in here replacing this statement with your solution.
         return 0;
     }
 
@@ -96,8 +94,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
         // 5. Return the count of transformed images (don't count any
         //    images that fail to download or transform correctly).
 
-        // TODO -- you fill in here replacing this statement with your
-        //  solution.
+        // TODO -- you fill in here replacing this statement with your solution.
         return 0;
     }
 }
