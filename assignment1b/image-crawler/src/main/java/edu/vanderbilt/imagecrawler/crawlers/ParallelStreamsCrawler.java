@@ -106,7 +106,7 @@ public class ParallelStreamsCrawler // Loaded via reflection
         // Return a count of of all images processed on/from this page.
         // TODO -- you fill in here replacing this statement with your
         // solution.
-        return null;
+        return 0;
     }
 
     /**
@@ -167,7 +167,7 @@ public class ParallelStreamsCrawler // Loaded via reflection
         // 5. Count the number of non-null images that were transformed.
 
         // TODO -- you fill in here replacing this statement with your solution.
-        return null;
+        return 0;
     }
 
     /**

@@ -147,7 +147,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
 
     /**
      * Locally applies the current set of crawler transforms on the
-     * passed {@code image} and returns a {@link Stream} of all
+     * passed {@code image} and returns a count of all
      * successfully transformed images.
      *
      * @param image The image to transform
