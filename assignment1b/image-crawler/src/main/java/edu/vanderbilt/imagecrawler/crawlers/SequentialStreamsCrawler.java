@@ -155,7 +155,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
      */
     protected int transformImageLocally(Image image) {
         // Create and use a Java sequential stream as follows:
-        // 1. Convert the List of transforms into a parallel stream.
+        // 1. Convert the List of transforms into a sequential stream.
         // 2. Attempt to create a new cache item for each image,
         //    filtering out any image that has already been locally
         //    cached.
