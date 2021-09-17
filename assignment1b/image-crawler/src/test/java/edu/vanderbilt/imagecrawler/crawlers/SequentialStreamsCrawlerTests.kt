@@ -137,6 +137,8 @@ class SequentialStreamsCrawlerTests : AssignmentTests() {
         val mockIntegerStream = mockk<Stream<Int>>()
         val mockPageStream = mockk<Stream<Crawler.Page>>()
         val mockOptional = mockk<Optional<Int>>()
+        val mockWebPageCrawler = mockk<WebPageCrawler>()
+        mockCrawler.mWebPageCrawler = mockWebPageCrawler
 
         every { mockStringStream.map<Crawler.Page>(any()) } returns mockPageStream
         every { mockIntegerStream.findFirst() } returns mockOptional
@@ -160,8 +162,8 @@ class SequentialStreamsCrawlerTests : AssignmentTests() {
     @Test
     fun `crawlPage() uses expected lambdas`() {
         val uri = "http://www.mock.url/mock-page"
-        val mockWebPageCrawler = mockk<WebPageCrawler>()
         val mockPage = mockk<Crawler.Page>()
+        val mockWebPageCrawler = mockk<WebPageCrawler>()
         mockCrawler.mWebPageCrawler = mockWebPageCrawler
 
         every { mockWebPageCrawler.getPage(any()) } returns mockPage

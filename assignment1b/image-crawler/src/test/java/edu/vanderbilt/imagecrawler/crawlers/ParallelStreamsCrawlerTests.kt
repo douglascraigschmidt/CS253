@@ -137,6 +137,8 @@ class ParallelStreamsCrawlerTests : AssignmentTests() {
         val mockIntegerStream = mockk<Stream<Int>>()
         val mockPageStream = mockk<Stream<Crawler.Page>>()
         val mockOptional = mockk<Optional<Int>>()
+        val mockWebPageCrawler = mockk<WebPageCrawler>()
+        mockCrawler.mWebPageCrawler = mockWebPageCrawler
 
         every { mockStringStream.map<Crawler.Page>(any()) } returns mockPageStream
         every { mockIntegerStream.findFirst() } returns mockOptional
