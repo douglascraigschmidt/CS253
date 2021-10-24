@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.vanderbilt.grader</groupId>
+  <artifactId>gradle-plugin</artifactId>
+  <version>3.0.6.0</version>
+  <dependencies/>
+  <description>Gradle plugin containing tasks for grading and submitting Vanderbilt Android Assignment projects</description>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>MonteCreasor</id>
+      <name>Monte Creasor</name>
+      <email>montecreasor@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>https://github.com/MonteCreasor/grader.git</connection>
+    <developerConnection>https://github.com/MonteCreasor/grader.git</developerConnection>
+    <url>https://github.com/MonteCreasor/grader/</url>
+  </scm>
+</project>
