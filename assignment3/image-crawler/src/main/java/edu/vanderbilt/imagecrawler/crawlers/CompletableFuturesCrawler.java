@@ -18,7 +18,7 @@ import edu.vanderbilt.imagecrawler.utils.Image;
  * This implementation strategy uses Java's functional programming
  * features, Java's completable futures framework, and Java's
  * sequential streams framework to perform an "image crawl"
- * asynchronously starting from a root Uri.  Images from HTML page
+ * asynchronously starting from a root Uri.  Images from an HTML page
  * reachable from the root Uri are downloaded from a remote web server
  * or the local file system and the results are stored in files that
  * can be displayed to the user.
@@ -37,7 +37,7 @@ public class CompletableFuturesCrawler
      *
      * @param pageUri The URI that's being crawled at this point
      * @param depth   The current depth of the recursive processing
-     * @return The number of images downloaded/stored.
+     * @return The number of images downloaded/transformed/stored.
      */
     protected int performCrawl(String pageUri,
                                int depth) {
@@ -53,13 +53,13 @@ public class CompletableFuturesCrawler
 
     /**
      * Asynchronously perform a web crawl by using Java's completable
-     * futures framework to (1) download/store images on this page and
-     * (2) crawl other hyperlinks accessible via this page.
+     * futures framework to (1) download/transform/store images on this
+     * page and (2) crawl other hyperlinks accessible via this page.
      *
      * @param pageUri The URL that we're crawling at this point
      * @param depth   The current depth of the recursive processing
      * @return A {@link CompletableFuture} to the the number of images
-     *         downloaded/stored
+     *         downloaded/transformed/stored
      */
     protected CompletableFuture<Integer> crawlPageAsync(String pageUri,
                                                         int depth) {
@@ -84,8 +84,8 @@ public class CompletableFuturesCrawler
 
     /**
      * Asynchronously perform the web crawl by using several local
-     * CompletableFuture objects to (1) download/store images on this
-     * page and (2) crawl other hyperlinks accessible via this page.
+     * CompletableFuture objects to (1) download/transform/store images on
+     * this page and (2) crawl other hyperlinks accessible via this page.
      *
      * @param pageUri The URL that we're crawling at this point
      * @param depth   The current depth of the recursive processing
@@ -98,11 +98,14 @@ public class CompletableFuturesCrawler
         // 1. Get a CompletableFuture to the HTML page associated with
         //    pageUri, which is downloaded asynchronously.
         // 2. Get a CompletableFuture to the # of images in this HTML
-        //    page, which are downloaded/stored asynchronously.
-        // 3. Get a CompletableFuture to the # of images in this HTML
-        //    page, which are downloaded/stored asynchronously.
+        //    page, which are downloaded/transformed/stored
+        //    asynchronously.
+        // 3. Get a CompletableFuture to the # of images linked from
+        //    this HTML page, which are downloaded/transformed/stored a
+        //    asynchronously/recursively.
         // 4. Get a CompletableFuture to the # of images linked from
-        //    this page, which are downloaded/stored asynchronously.
+        //    this page, which are downloaded/transformed/stored
+        //    asynchronously.
 
         // TODO -- you fill in here replacing return null with your
         // solution.
@@ -128,8 +131,8 @@ public class CompletableFuturesCrawler
     }
 
     /**
-     * Asynchronously download/store all the images in the page
-     * associated with {@code pageFuture} after it is triggered.
+     * Asynchronously download/transform/store all the images in the
+     * page associated with {@code pageFuture} after it is triggered.
      *
      * @param pageFuture A {@link CompletableFuture} to the page being
      *                   downloaded
@@ -221,8 +224,8 @@ public class CompletableFuturesCrawler
     }
 
     /**
-     * Download, store, and transform images provided via a {@link List} of
-     * {@code urls}.
+     * Download, transform, and store images provided via a {@link
+     * List} of {@code urls}.
      *
      * @param urls A {@link List} of URLs corresponding to images on the page
      * @return A {@link CompletableFuture to an {@link Integer} that
@@ -235,7 +238,7 @@ public class CompletableFuturesCrawler
         // the List of URLs.  This method should consist of a Java
         // sequential stream that uses aggregate operations (e.g.,
         // map(), collect(), flatMap(), and count()), several
-        // completable future methods (e.g., FuturesCollectorStream
+        // CompletableFuture methods (e.g., FuturesCollectorIntStream
         // .toFuture() and thenApply()), and various other methods
         // (e.g., downloadAndStoreImageAsync() and
         // transformImageAsync()).
@@ -247,7 +250,8 @@ public class CompletableFuturesCrawler
 
     /**
      * Process the {@code imageFuture} by applying all transforms to
-     * it after the future is triggered once the download completes.
+     * it after the {@link CompletableFuture} is triggered after the
+     * download completes.
      *
      * @param imageFuture A future to an image that's being downloaded
      * @return A completable future to an stream of Images indicating
@@ -261,7 +265,7 @@ public class CompletableFuturesCrawler
         // a sequential Stream.  This method should contain
         // CompletableFuture methods (e.g., thenApplyAsync()), stream
         // aggregate operations (e.g., map()), and a helper method
-        // (e.g., transformImage).
+        // (e.g., transformImage()).
 
         // TODO -- you fill in here replacing return null with your
         // solution.
