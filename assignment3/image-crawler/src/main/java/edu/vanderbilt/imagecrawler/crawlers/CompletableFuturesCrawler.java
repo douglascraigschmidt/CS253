@@ -215,7 +215,7 @@ public class CompletableFuturesCrawler
         // Completable Future-related methods (e.g., thenApply() and
         // FuturesCollectorIntStream.toFuture()), and other helper
         // methods (e.g., getPageElementsAsStrings() and
-        // performCrawlAsync()).
+        // crawlPageAsync()).
 
         // TODO -- you fill in here replacing return null with your
         // solution.
@@ -239,7 +239,7 @@ public class CompletableFuturesCrawler
         // map(), collect(), flatMap(), and count()), several
         // CompletableFuture methods (e.g., FuturesCollectorIntStream
         // .toFuture() and thenApply()), and various other methods
-        // (e.g., downloadAndStoreImageAsync() and
+        // (e.g., getOrDownloadImageAsync() and
         // transformImageAsync()).
 
         // TODO -- you fill in here replacing return null with your
