@@ -103,9 +103,8 @@ public class CompletableFuturesCrawler
         // 3. Get a CompletableFuture to the # of images linked from
         //    this HTML page, which are downloaded/transformed/stored a
         //    asynchronously/recursively.
-        // 4. Get a CompletableFuture to the # of images linked from
-        //    this page, which are downloaded/transformed/stored
-        //    asynchronously.
+        // 4. Return a CompletableFuture that combines/sums the two
+        //    CompletableFutures after they complete asynchronously.
 
         // TODO -- you fill in here replacing return null with your
         // solution.
