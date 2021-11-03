@@ -211,8 +211,8 @@ public class CompletableFuturesCrawler
         // Return a CompletableFuture to an Integer that counts the #
         // of hyperlinks accessible from the page.  This method should
         // consist of a Java sequential stream containing aggregate
-        // operations (e.g., map(), collect(), and reduce()), several
-        // Completable Future-related methods (e.g., thenApply() and
+        // operations (e.g., map() and collect()), several Completable
+        // Future-related methods (e.g., thenApply() and
         // FuturesCollectorIntStream.toFuture()), and other helper
         // methods (e.g., getPageElementsAsStrings() and
         // crawlPageAsync()).
