@@ -146,7 +146,6 @@ public class ReactorCrawler
      */
     protected Flux<Image> imagesOnPageAsync(Crawler.Page page) {
         // Create and return a Flux stream for this page using the
-
         // methods getPageElementsAsUrls(), downloadImageAsync(), and
         // transformImageAsync(), as well as use Flux operators like
         // flatmap() and fromIterable() to perform processing.  The

@@ -1,0 +1,74 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "io.franzbecker.gradle-lombok" version "4.0.0"
+    id 'java'
+    id 'maven'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.20'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2020.0.1")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'commons-dbcp:commons-dbcp:1.4'
+    implementation 'commons-io:commons-io:2.10.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.8'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+//    implementation 'io.projectreactor:reactor-core:3.4.3'
+    runtimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+    testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
