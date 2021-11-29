@@ -47,20 +47,15 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with your
         // solution.
         return 0;
-                                      // Crawl the page using the specified uri and depth.
-                                      
+        // Crawl the page using the specified uri and depth.
 
-                                      // Count the number of elements in Flux stream.
-                                      
+        // Count the number of elements in Flux stream.
 
-                                      // Return 0 if any exception is encountered.
-                                      
+        // Return 0 if any exception is encountered.
 
-                                      // Block to get the result.
-                                      
+        // Block to get the result.
 
-            // Convert the result to an int primitive.
-            
+        // Convert the result to an int primitive.
     }
 
     /**
@@ -84,19 +79,15 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with your
         // solution.
         return null;
-            // Create a Flux that emits this pageUri.
-            
+        // Create a Flux that emits this pageUri.
 
-            // Filter out page if it exceeds the depth or has already
-            // been visited.
-            
+        // Filter out page if it exceeds the depth or has already
+        // been visited.
 
-            // Map the url to a page.
-            
+        // Map the url to a page.
 
-            // Apply the flatMap() concurrency idiom to convert each
-            // page to a Flux stream of images asynchronously.
-            
+        // Apply the flatMap() concurrency idiom to convert each
+        // page to a Flux stream of images asynchronously.
     }
 
     /**
@@ -139,14 +130,12 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with your
         // solution.
         return null;
-            // Convert the list of page links into a Flux stream of
-            // page links.
+        // Convert the list of page links into a Flux stream of
+        // page links.
             
-
-            // Apply the flatMap() concurrency idiom to map each page
-            // to a stream of images that are downloaded and
-            // transformed concurrently via the parallel scheduler.
-        
+        // Apply the flatMap() concurrency idiom to map each page
+        // to a stream of images that are downloaded and
+        // transformed concurrently via the parallel scheduler.
     }
 
     /**
@@ -157,7 +146,7 @@ public class ReactorCrawler
      */
     protected Flux<Image> imagesOnPageAsync(Crawler.Page page) {
         // Create and return a Flux stream for this page using the
-        // Flux flatMap() concurrency idiom.  It should call helper
+
         // methods getPageElementsAsUrls(), downloadImageAsync(), and
         // transformImageAsync(), as well as use Flux operators like
         // flatmap() and fromIterable() to perform processing.  The
@@ -166,18 +155,15 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with your
         // solution.
         return null;
-            // Convert the list of images in the page into an
-            // Flux stream.
-            
+        // Convert the list of images in the page into an
+        // Flux stream.
 
-            // Apply a transforming operator to download the stream of
-            // images in parallel.
+        // Apply a transforming operator to download the stream of
+        // images in parallel.
             
-
-            // Again a transforming operator to convert the stream of
-            // downloaded images into a stream of images that are
-            // transformed in parallel.
-            
+        // Again a transforming operator to convert the stream of
+        // downloaded images into a stream of images that are
+        // transformed in parallel.
     }
 
     /**
@@ -198,15 +184,12 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with your
         // solution.
         return null;
-            // Create a Flux that emits the URL.
-            
+        // Create a Flux that emits the URL.
 
-            // Run computation in the parallel scheduler.
-            
+        // Run computation in the parallel scheduler.
 
-            // Map the image URL to a possibly downloaded image,
-            // ignoring any null values that may occur.
-            
+        // Map the image URL to a possibly downloaded image,
+        // ignoring any null values that may occur.
     }
 
     /**
@@ -242,20 +225,16 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with
         // your solution.
         return null;
-            // Convert the List of transforms into an stream of
-            // transforms.
+        // Convert the List of transforms into an stream of
+        // transforms.
             
+        // Run computations in the parallel scheduler.
+            
+        // Only transform images that haven't already been
+        // transformed.
 
-            // Run computations in the parallel scheduler.
-            
-
-            // Only transform images that haven't already been
-            // transformed.
-            
-
-            // Apply the transform on the image, ignoring any
-            // null values that are returned.
-            
+        // Apply the transform on the image, ignoring any
+        // null values that are returned.
     }
 
     /**
@@ -295,15 +274,12 @@ public class ReactorCrawler
         // TODO -- you fill in here replacing this statement with your
         // solution.
         return null;
-            // Call that RemoteDataSource method that applies all
-            // transforms in parallel on the image remotely.
+        // Call that RemoteDataSource method that applies all
+        // transforms in parallel on the image remotely.
             
-
-            // Convert Mono<List<TransformedImage>> to
-            // Flux<TransformedImage>.
+        // Convert Mono<List<TransformedImage>> to
+        // Flux<TransformedImage>.
             
-
-            // Create an Image instance to return to caller.
-        
+        // Create an Image instance to return to caller.
     }
 }
