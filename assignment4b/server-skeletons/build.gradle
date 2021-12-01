@@ -1,10 +1,9 @@
 plugins {
-    id 'org.springframework.boot' version '2.4.3'
+    id 'org.springframework.boot' version '2.5.7'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id "io.franzbecker.gradle-lombok" version "4.0.0"
     id 'java'
-    id 'maven'
-    id 'org.jetbrains.kotlin.jvm' version '1.5.20'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
 }
 
 java {
@@ -23,7 +22,7 @@ repositories {
 }
 
 ext {
-    set('springCloudVersion', "2020.0.1")
+    set('springCloudVersion', "2020.0.4")
 }
 
 dependencies {
@@ -37,18 +36,20 @@ dependencies {
     implementation 'commons-io:commons-io:2.10.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.8'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-//    implementation 'io.projectreactor:reactor-core:3.4.3'
     runtimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'io.mockk:mockk:1.12.0'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
     testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
-    testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.2'
+    testImplementation 'com.squareup.okhttp3:okhttp:4.9.2'
 
 }
 

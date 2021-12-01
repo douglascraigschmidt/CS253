@@ -16,7 +16,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="11" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="eureka.EurekaApplication" />
-    <module name="transform-reactor-microservices.eureka" />
+    <module name="transform-reactor-microservices.eureka.main" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="server.airline.aal.*" />

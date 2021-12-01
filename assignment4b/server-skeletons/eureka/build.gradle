@@ -23,11 +23,12 @@ repositories {
 }
 
 ext {
-    set('springCloudVersion', "2020.0.1")
+    set('springCloudVersion', "2020.0.4")
 }
 
 dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
