@@ -41,17 +41,18 @@ class MainServiceWhiteBoxTests {
         val service = spyk<MainService>()
         mockkStatic(Flux::class)
         mockkStatic(Schedulers::class)
-        val f = mockk<Flux<String>>()
+        val f1 = mockk<Flux<String>>()
+        val f2 = mockk<Flux<String>>()
         val result = mockk<Flux<TransformedImage>>()
         val s = mockk<Scheduler>()
 
-        every { Flux.fromIterable<String>(any()) } returns f
-        every { f.subscribeOn(any()) } returns f
-        every { Schedulers.parallel() } returns s
-        every { Schedulers.boundedElastic() } returns s
-        every { Schedulers.newParallel(any()) } returns s
-        every { f.flatMap<String>(any()) } returns f
-        every { f.flatMap<TransformedImage>(any()) } returns result
+        every { f1.flatMap<String>(any()) } answers { f2 }
+        every { Flux.fromIterable<String>(any()) } answers { f1 }
+        every { Schedulers.parallel() } answers { s }
+        every { Schedulers.boundedElastic() } answers { s }
+        every { f2.flatMap<TransformedImage>(any()) } answers { result }
+        every { Schedulers.newParallel(any()) } answers { s }
+        every { f1.subscribeOn(any()) } answers { f1 }
 
         service.applyTransforms(
             listOf("mock1", "mock2"),
@@ -61,14 +62,14 @@ class MainServiceWhiteBoxTests {
         )
 
         verify(exactly = 1) {
-            Flux.fromIterable<String>(any())
-            f.subscribeOn(any())
-            f.flatMap<String>(any())
-            f.flatMap<TransformedImage>(any())
+            f2.flatMap<TransformedImage>(any())
+            f1.subscribeOn(any())
             Schedulers.boundedElastic()
+            f1.flatMap<String>(any())
+            Flux.fromIterable<String>(any())
         }
 
-        confirmVerified(f, Schedulers::class.java, Flux::class.java)
+        confirmVerified(f1, f2, Schedulers::class.java, Flux::class.java)
     }
 
     @Test
