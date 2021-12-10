@@ -73,3 +73,7 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+//if (file("$projectDir/admin/skeleton.gradle").isFile()) {
+//    apply from: "$projectDir/admin/skeleton.gradle"
+//}

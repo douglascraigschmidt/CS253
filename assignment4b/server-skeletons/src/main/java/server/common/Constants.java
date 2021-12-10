@@ -35,7 +35,7 @@ public class Constants {
      */
     public static class Service {
         /**
-         * All service names must match the spring.application.name
+         * Service names must match the spring.application.name
          * property in each microservice application properties
          * resource file.
          */

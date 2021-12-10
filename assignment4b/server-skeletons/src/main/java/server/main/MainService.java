@@ -157,7 +157,7 @@ public class MainService {
      *
      * @return A {@link Flux} that emits all registered microservices
      */
-    public Flux<String> getTransformMicroServices() {
+    protected Flux<String> getTransformMicroServices() {
         // Get a List of all registered microservices and convert it
         // to a Flux.
 
