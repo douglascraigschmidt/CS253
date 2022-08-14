@@ -1,7 +1,0 @@
-.idea/*
-!.idea/runConfigurations/
-.gradle/
-build/
-*.iml
-*.log
-local.properties
