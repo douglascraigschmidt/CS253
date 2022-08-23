@@ -180,20 +180,7 @@ public class SequentialStreamsCrawler // Loaded via reflection
      * @return The count of the non-null transformed images
      */
     protected int transformImageRemotely(Image image) {
-        // Perform all transform operations and then return the number
-        // of transformed images as follows:
-        // 1. Call getRemoteDataSource() to get a proxy to the server.
-        // 2. Call a RemoteDataSource helper method to apply all
-        //    transforms on the image remotely.
-        // 3. Convert the List of resulting transformed images
-        //    into a Stream.
-        // 4. Call createImage() to convert the received
-        //    TransformedImage to a locally cached Image.
-        // 5. Skip null images.
-        // 6. Return the count of the number of transformed images.
-
-        // TODO -- you fill in here replacing this statement with your
-        // solution.
+        // Please ignore this method for this assignment.
         return 0;
     }
 }
