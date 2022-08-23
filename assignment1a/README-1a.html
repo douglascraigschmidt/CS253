@@ -1,0 +1,159 @@
+<html>
+
+<title>Image Crawler Stream App (Assignment 1a)</title>
+
+<body text = "#000000"
+link="#000fff"
+vlink="#ff0f0f"
+bgcolor="#ffffff">
+
+<hr>
+<h3>Image Crawler Stream App (Assignment 1a)</h3>
+
+<p>The purpose of the first part of this two-part assignment is to
+deepen your experience using Java functional programming features and
+their integration with Java sequential streams.  In particular, in
+this assignment you'll develop an app that uses Java sequential
+streams to obtain, transform, and store images.</p>
+
+<p> The code you'll write for this assignment has a GUI and runs as an
+Android app. Please feel free to use this app to help debug your
+solution. </p>
+
+<p> The following resources may be helpful in completing this
+assignment: </p>
+
+<ul>
+
+<li>Good overviews of Java streams appear <A
+HREF="http://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html">here</A>
+and <A
+HREF="http://www.oracle.com/technetwork/articles/java/architect-streams-pt2-2227132.html">here</A>. <P>
+
+<li> The book <A
+HREF="https://www.manning.com/books/modern-java-in-action">Modern Java
+in Action</A> is a great resource to learn how to program Java
+streams. </li> </ul>
+
+<p>Naturally, we'll cover this material in class, which will be
+available in my YouTube <A
+HREF="https://www.youtube.com/playlist?list=PLZ9NgFYEMxp4uV6IgyjGNH9U-Tx-9c4LN">
+CS253 playlist</A>.  </p>
+
+<HR width=50% align=left> <H4>Assignment Structure and
+Functionality</H4>
+
+<P>The ImageCrawler app is packaged as a project using <A
+HREF="https://developer.android.com/studio">Android Studio</A>.  This
+app is written in both Kotlin and Java and demonstrates <EM>many</EM>
+Android capabilities.  For the purposes of Assignment 1a, however, you
+only need to be aware of the following directories:
+
+<UL>
+
+<li style="margin-bottom:1em"> <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/">imagecrawler/crawlers</A>,
+which contains the skeleton(s) you'll need to fill in, as described <A
+HREF="#description">below</A>. </li>
+
+<LI style="margin-bottom:1em"> <A
+HREF="image-crawler/src/test">image-crawler/src/test</A>, which is a
+set of unit tests that exercise the features you're implementing to
+evaluate whether you've correctly satisfied this assignment's
+requirements.  </LI>
+
+<li style="margin-bottom:1em"> <A
+HREF="app/src/androidTest/java/assignmentTests">app/src/androidTest/java/assignmentTests</A>,
+which is an Android Studio instrumentation test that runs your app
+automatically. </li>
+
+</UL>
+
+<P>To compile this code you need to use the provided Android Studio
+project.  You can run this project by clicking the green "Run 'app'"
+button in the Android Studio IDE, which should automatically select an
+Android Emulator to run, assuming you have one created. The app's
+minimum API is 31, so you'll need to select an emulator that uses an
+API >= 31 (I recommend API 32). If you don't already have an Android
+Emulator you can create one by clicking on the "AVD Manager" button in
+the Android Studio IDE.</P>
+
+<hr width=50% align=left> <A name="description"> <H4>Program
+Description and "TODO" Tasks</H4>
+
+<P>You'll need to modify several files containing the skeleton Java
+code by completing the "TODO - You fill in here" tasks to provide a
+working solution.  DO NOT CHANGE THE OVERALL STRUCTURE OF THE SKELETON
+- just fill in the "TODO" tasks (and do NOT delete the "TODO" tags)!!!
+In particular, you'll need to finish implementing the following "TODO"
+tasks for this assignment in the <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/">imagecrawler/crawlers</A>
+folder:
+
+<UL>
+
+<LI> <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/SequentialStreamsCrawler.java">imagecrawler/crawlers/SequentialStreamsCrawler.java</A>.
+You'll need to complete the "TODO" tasks in various methods to obtain,
+transform, and store images.  This class uses Java sequential streams
+to perform an "image crawl" starting from a root Uri.  Depending on
+the parameters used to run the tests, images from HTML pages reachable
+from the root Uri are either downloaded from a remote web server or
+read from the local file system and the results are stored in the
+local file system on the Android device. </p> 
+
+<LI style="margin-bottom:1em"><A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/utils/Student.kt">Student.kt</A>.
+You'll need to complete the "TODO" to set the <CODE>type</CODE> field
+to include just <CODE>Graduate</CODE> or <CODE>Undergraduate</CODE>,
+depending on which version of the assignment that you're
+implementing.</LI>
+
+</UL>
+
+<p>The bulk of the code for the app is provided in the skeletons.  In
+fact, a complete solution using Java 7 features is provided in the <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/SequentialLoopsCrawler.java">SequentialLoopsCrawler.java</A>
+file.  You will therefore focus on converting this Java 7-based class
+to the <CODE>SequentialStreamsCrawler</CODE> class that uses Java
+sequential streams.</p>
+
+<p> Your solution should use <EM>no</EM> loops or if/else statements
+in this assignment and instead use Java sequential stream aggregate
+operations and functional programming features. Your solution will be
+considered correct if it passes all the unit and instrumentation
+tests, is commented thoroughly, and addresses my review comments.</p>
+
+<hr width=50% align=left> <h4>Skeleton Code</h4>
+
+<p> Skeleton code for this assignment is
+available <a href="https://github.com/douglascraigschmidt/CS253/tree/master/assignment1a/">here</a>
+in my GitHub repository.  Please setup
+your <a href="https://about.gitlab.com/">GitLab</a> account, pull this
+skeleton code into your repository, read it carefully, and complete
+the "TODO" markers.
+
+<hr width=50% align=left> <h4>Unit Tests</h4>
+
+<p> The unit tests in the <A
+HREF="image-crawler/src/test/java/edu/vanderbilt/imagecrawler">image-crawler/src/test</A>
+folder are provided to increase our collective confidence that your
+implementation is working as expected.  You'll need to use the Android
+Studio GUI to run the unit tests locally on your computer, as
+described <A
+HREF="https://developer.android.com/training/testing/unit-testing/local-unit-tests.html#run">here</A>.
+As usual, testing only demonstrates the presence of bugs, not their
+absence, so don't rely solely on the unit tests to detect problems in
+your code. </p>
+
+<hr width=50% align=left> <h4>Concluding Remarks</h4> <p>
+
+<p> Assignment 1a is designed to deepen your experience developing
+apps using Java sequential streams and functional programming
+features.  The skeletons and unit tests are quite extensive, though
+you don't need to understand them all to complete your solution.
+Please therefore start early and ask questions in class, office hours,
+and on the discussion forums to ensure you complete this assignment
+successfully! </p>
+
+</body> </html>
