@@ -489,12 +489,12 @@ class SettingsDialogFragment :
      */
     fun crawlerRunning(running: Boolean) {
         crawlerRunning = running
-        with(binding) {
-            settingsCrawlStrategy.enable(!crawlerRunning)
-            settingsCrawlDepth.enable(!crawlerRunning)
-            settingsLocalCrawl.enable(!crawlerRunning)
-            settingsTransformsSourceRadioGroup.enable(!crawlerRunning)
-            settingsLocalTransforms.enable(!crawlerRunning)
-        }
+//        with(binding) {
+//            settingsCrawlStrategy.enable(!crawlerRunning)
+//            settingsCrawlDepth.enable(!crawlerRunning)
+//            settingsLocalCrawl.enable(!crawlerRunning)
+//            settingsTransformsSourceRadioGroup.enable(!crawlerRunning)
+//            settingsLocalTransforms.enable(!crawlerRunning)
+//        }
     }
 }

@@ -80,13 +80,13 @@ internal object Settings {
     }
 
     fun resetToDefaults(simulationRunning: Boolean) {
-        if (!simulationRunning) {
+//        if (!simulationRunning) {
             crawlStrategy = DEFAULT_CRAWL_STRATEGY
             crawlDepth = DEFAULT_CRAWL_DEPTH
             localCrawl = DEFAULT_LOCAL_CRAWL
             transformTypes = DEFAULT_TRANSFORM_TYPES
             webUrl= DEFAULT_WEB_URL
-        }
+//        }
 
         crawlSpeed = DEFAULT_CRAWL_SPEED
         debugLogging = DEFAULT_DEBUG_LOGGING
