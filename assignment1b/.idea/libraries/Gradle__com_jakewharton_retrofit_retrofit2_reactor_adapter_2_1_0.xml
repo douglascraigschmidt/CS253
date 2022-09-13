@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.jakewharton.retrofit:retrofit2-reactor-adapter:2.1.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jakewharton.retrofit/retrofit2-reactor-adapter/2.1.0/4528a0c34521d1800874fb1362ebfb62c97fa787/retrofit2-reactor-adapter-2.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jakewharton.retrofit/retrofit2-reactor-adapter/2.1.0/aa3ce8cd87aa80e067a4a4f21ac9a24edbc20875/retrofit2-reactor-adapter-2.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
