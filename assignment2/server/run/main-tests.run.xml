@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="main-tests" type="Multirun" separateTabs="false" reuseTabsWithFailures="false" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="5.0">
+    <runConfiguration name="MainApplication" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

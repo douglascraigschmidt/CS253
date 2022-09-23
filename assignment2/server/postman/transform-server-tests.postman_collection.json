@@ -1,0 +1,99 @@
+{
+	"info": {
+		"_postman_id": "d5e3b37a-f21f-4046-8c25-7bbd5144e6f5",
+		"name": "transform-server-tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "apply-transforms",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const response = pm.response.json()",
+							"",
+							"pm.test(\"Response has 3 transformed images\", function () {",
+							"    pm.expect(response.length).to.eql(3);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "image",
+							"type": "file",
+							"src": "/home/monte/cur/crawler/image-crawler/web-pages/www.dre.vanderbilt.edu/~schmidt/imgs/imgs1/robot.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base}}/apply-transforms?transforms=GrayScaleTransform&transforms=TintTransform&transforms=SepiaTransform&imageName=__notag__-www.dre.vanderbilt.edu%252F%257Eschmidt%252Fimgs%252Fimgs2%252Flil_doug.jpg",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"apply-transforms"
+					],
+					"query": [
+						{
+							"key": "transforms",
+							"value": "GrayScaleTransform"
+						},
+						{
+							"key": "transforms",
+							"value": "TintTransform"
+						},
+						{
+							"key": "transforms",
+							"value": "SepiaTransform"
+						},
+						{
+							"key": "imageName",
+							"value": "__notag__-www.dre.vanderbilt.edu%252F%257Eschmidt%252Fimgs%252Fimgs2%252Flil_doug.jpg"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base",
+			"value": "localhost:8081"
+		}
+	]
+}
