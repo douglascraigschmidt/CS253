@@ -1,0 +1,111 @@
+// Required by Vanderbilt grader - do not remove
+buildscript {
+	repositories { maven { url uri('plugin') } }
+	dependencies { classpath 'edu.vanderbilt.grader:gradle-plugin:3.0.6.0' }
+}
+
+buildscript {
+    ext {
+        // Needs to be an extension for functions to be able to access it.
+
+        versionMajor = 1
+        versionMinor = 2
+        versionPatch = 0
+
+        build_versions = [
+                compileSdk: 32,
+                targetSdk : 32,
+                minSdk    : 30,
+                java      : JavaVersion.VERSION_11,
+                code      : versionMajor * 10000 + versionMinor * 100 + versionPatch,
+                name      : "${versionMajor}.${versionMinor}.${versionPatch}"
+        ]
+
+        versions = [
+                kotlin           : '1.7.10',
+                coroutines       : '1.6.4',
+                support          : '1.2.1',
+                annotation       : '1.4.0',
+                legacy_support   : '1.0.0',
+                appcompat        : '1.5.0',
+                material         : '1.6.1',
+                preference_ktx   : '1.2.0',
+                constraint_layout: '2.1.4',
+                arch_components  : '2.5.1',
+                core_ktx         : '1.8.0',
+                viewmodel_ktx    : '2.5.1',
+                glide            : '4.13.2',
+                picasso          : '2.71828',
+                gson             : '2.9.1',
+                annotations      : '23.0.0',
+                commons_io       : '20030203.000550',
+                jsoup            : '1.15.2',
+                leak_canary      : '2.9.1',
+                reactor          : '3.4.7',
+                rxjava           : '3.1.5',
+                rxandroid        : '3.0.0',
+                rxbinding        : '2.2.0',
+                espresso         : '3.4.0',
+                okhttp           : '4.13.2',
+                junit            : '4.13.2',
+                mockito          : '4.7.0',
+                mockito_kotlin   : '2.2.0'
+        ]
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+    }
+}
+
+plugins {
+    id "org.jetbrains.kotlin.kapt" version "1.7.10" apply false
+}
+
+subprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    afterEvaluate {
+        if (plugins.findPlugin('android') ?: plugins.findPlugin('android-library')) {
+            android {
+                compileSdkVersion build_versions.compileSdk
+
+                defaultConfig {
+                    minSdkVersion build_versions.minSdk
+                    targetSdkVersion build_versions.compileSdk
+                }
+
+                compileOptions {
+                    sourceCompatibility build_versions.java
+                    targetCompatibility build_versions.java
+                }
+
+                kotlinOptions {
+                    jvmTarget = build_versions.java
+                }
+            }
+        }
+    }
+}
+
+if (file("$projectDir/admin/skeleton.gradle").isFile()) {
+    apply from: "$projectDir/admin/skeleton.gradle"
+}
+
+// Required by Vanderbilt grader - do not remove
+subprojects { proj ->
+	afterEvaluate {
+		if (proj.plugins.findPlugin('android') ?: proj.plugins.findPlugin('android-library')) {
+			proj.apply plugin: 'edu.vanderbilt.grader.plugin'
+		}
+	}
+}

@@ -1,0 +1,162 @@
+<html>
+
+<title>Image Crawler Completable Futures App (Assignment 3)</title>
+
+<body text = "#000000"
+link="#000fff"
+vlink="#ff0f0f"
+bgcolor="#ffffff">
+
+<hr>
+<h3>Image Crawler Completable Futures App (Assignment 3)</h3>
+
+<p>The purpose of this assignment is to deepen your experience using
+Java's functional programming features and their integration with
+Java's completable futures framework.  In particular, in this
+assignment you'll develop an app that uses Java's completable futures
+framework in conjunction with Java's sequential streams framework to
+obtain, transform, and store images asynchronously in a pool of
+threads.</p>
+
+<p> Like the earlier assignments, the code you'll write here will have
+a GUI and will run as an Android app. Please use this GUI along with
+the unit tests outlined below to help debug and evaluate your
+solution. </p>
+
+<p> The following resources may be helpful in completing this
+assignment: </p>
+
+<ul>
+
+<li>Detailed overviews of Java's completable futures framework are
+available in videos from one of my <a
+href="https://www.youtube.com/playlist?list=PLZ9NgFYEMxp4uV6IgyjGNH9U-Tx-9c4LN">YouTube
+playlists</a>. Naturally, we'll cover this material in class, which
+will be available in my YouTube CS253 playlist <A
+HREF="https://www.youtube.com/playlist?list=PLZ9NgFYEMxp4sVQVC39gwaXByHiV08Zb3">here</A>.</li>
+<p>
+
+<li>Good overviews of Java's completable futures framework appear <A
+HREF="http://www.baeldung.com/java-completablefuture">here</A> and <A
+HREF="http://www.nurkiewicz.com/2013/05/java-8-definitive-guide-to.html">here</A>.
+I highly recommend you get the book <A
+HREF="https://www.manning.com/books/modern-java-in-action">Modern Java
+in Action</A> to learn more about Java's completable futures
+framework. </li> </ul>
+
+<HR width=50% align=left>
+<H4>Assignment Structure and Functionality</H4>
+
+<P>The ImageCrawler app is packaged as a project using the latest
+version of Android Studio.  This app is written in both Kotlin and
+Java and demonstrates <EM>many</EM> Android capabilities.  For the
+purposes of Assignment 3, however, you only need to be aware of the
+following folders:
+
+<UL>
+
+<li style="margin-bottom:1em"> <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/utils/">imagecrawler/crawlers</A>,
+which contains the skeleton(s) you'll need to fill in, as described <A
+HREF="#description">below</A>. </li>
+
+<LI style="margin-bottom:1em"> <A
+HREF="image-crawler/src/test">image-crawler/src/test</A>, which
+contains a set of unit tests that exercise the features you're
+implementing and are used to evaluate whether you've correctly
+satisfied this assignment's requirements.  </LI>
+
+</UL>
+
+<P>To compile this code you need to use the provided Android Studio
+project.  You can run this project by clicking the green "Run 'app'"
+button in the Android Studio IDE, which should automatically select an
+Android Emulator to run, assuming you have one created. The app's
+minimum API is 31, so you'll need to select an emulator that uses an
+API >= 31 (I recommend API 32). If you don't already have an Android
+Emulator you can create one by clicking on the "AVD Manager" button in
+the Android Studio IDE.</P>
+
+<hr width=50% align=left>
+<A name="description">
+<H4>Program Description and "TODO" Tasks</H4>
+
+<P>You'll need to modify several files containing the skeleton Java
+code by completing the "TODO - You fill in here" tasks to provide a
+working solution.  DO NOT CHANGE THE OVERALL STRUCTURE OF THE SKELETON
+- just fill in the "TODO" tasks (and do NOT delete the "TODO" tags)!!!
+In particular, you'll need to finish implementing the following "TODO"
+tasks for this assignment in the <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/">imagecrawler/crawlers</A>
+folder:
+
+<UL>
+
+<LI> <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/CompletableFutureCrawler.java">imagecrawler/crawlers/CompletableFutureCrawler.java</A>.
+You'll need to complete the "TODO" tasks in various methods to obtain,
+transform, and store images asynchronously.  This class uses the Java
+completable futures framework to perform an "image crawl"
+asynchronously, starting from a root Uri.  Depending on the parameters
+used to run the app, images from HTML pages reachable from the root
+Uri are either downloaded from a remote web server or read from the
+local file system, transformed locally, and the transformed results
+are then stored in the local file system on the Android device.
+
+</LI> </p>
+
+<LI style="margin-bottom:1em"><A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/utils/Student.kt">Student.kt</A>.
+You'll need to complete the "TODO" to set the <CODE>type</CODE> field
+to include just <CODE>Graduate</CODE> or <CODE>Undergraduate</CODE>,
+depending on which version of the assignment that you're
+implementing.</LI>
+
+</UL>
+
+<p>The bulk of the code for the app is provided in the skeletons.  In
+fact, a complete solution using Java 7 features is provided in the <A
+HREF="image-crawler/src/main/java/edu/vanderbilt/imagecrawler/crawlers/SequentialLoopsCrawler.java">SequentialLoopsCrawler.java</A>
+file.  Your will therefore convert this Java 7-based class to the
+<CODE>CompletableFutureCrawler</CODE> class that uses Java completable
+futures. </p>
+
+<p> Your solution should use <EM>no</EM> loops or if/else statements
+in this assignment and instead use Java completable futures methods
+and functional programming features.  Likewise, there should be only
+one call to <code>join()</code> and no calls to <code>get()</code>.
+Your solution will be considered correct if it passes all the unit
+tests, is commented thoroughly, and addresses my review comments. </p>
+
+<hr width=50% align=left> <h4>Skeleton Code</h4>
+
+<p> Skeleton code for this assignment is available <a
+href="https://github.com/douglascraigschmidt/CS253/tree/master/assignment3/">here</a>
+in my GitHub repository.  Now that you've setup your <a
+href="https://about.gitlab.com/">GitLab</a> account you can pull this
+skeleton code in your repository, read it carefully, and complete the
+"TODO" markers.  </p>
+
+<hr width=50% align=left> <h4>Unit Tests</h4>
+
+<p> The unit tests in the <A
+HREF="image-crawler/src/test/java/edu/vanderbilt/imagecrawler">image-crawler/src/test</A>
+folder are provided to increase our collective confidence that your
+implementation is working as expected.  Please use the Android Studio
+GUI to run the unit tests locally on your computer, as described <A
+HREF="https://developer.android.com/training/testing/unit-testing/local-unit-tests.html#run">here</a>.
+As usual, testing only demonstrates the presence of bugs, not their
+absence, so don't rely solely on the unit tests to detect problems in
+your code. </p>
+
+<hr width=50% align=left> <h4>Concluding Remarks</h4> <p>
+
+<p> Assignment 3 is more complicated than the previous assignments.
+In particular, the asynchronous nature of Java's completable futures
+framework may take some time to get accustomed to, so please start the
+assignment soon and ask questions in class, office hours, and on the
+Piazza discussion forum.  As usual, the app, image crawler skeletons,
+and unit tests are extensive, though you don't need to understand them
+all to complete your solution. </p>
+
+</body> </html>
