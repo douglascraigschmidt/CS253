@@ -1,0 +1,54 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+targetCompatibility = build_versions.java
+sourceCompatibility = build_versions.java
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jsoup:jsoup:$versions.jsoup"
+    implementation "org.jetbrains:annotations:$versions.annotations"
+    implementation "commons-io:commons-io:$versions.commons_io"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$versions.kotlin"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
+    implementation "io.reactivex.rxjava3:rxjava:$versions.rxjava"
+    implementation 'io.projectreactor:reactor-core:3.4.22'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+
+    // TODO: Grader won't find these libraries when they are declared only as testImplementation
+    // Leave as 1.12.5 - DO NOT CHANGE to 1.12.8 -- breaks build!
+    implementation 'io.mockk:mockk:1.12.5'
+    implementation 'org.assertj:assertj-core:3.23.1'
+
+    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3'
+    implementation 'com.jakewharton.retrofit:retrofit2-reactor-adapter:2.1.0'
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$versions.kotlin"
+    // Leave as 1.12.5 - DO NOT CHANGE to 1.12.8 -- breaks build!
+    testImplementation 'io.mockk:mockk:1.12.5'
+    testImplementation 'org.assertj:assertj-core:3.23.1'
+    testImplementation "junit:junit:$versions.junit"
+}
+
+test {
+    testLogging {
+        events "failed" //,"passed", "skipped"
+        outputs.upToDateWhen { false }
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = build_versions.java
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = build_versions.java
+    }
+}
