@@ -71,6 +71,7 @@ public class RxObservableCrawler
      */
     protected Observable<Image> crawlPageAsync(String pageUri,
                                                int depth) {
+
         // This method should use Observable operators like just(),
         // filter(), map(), and flatMap() (this latter operator should
         // call imagesOnPageAndPageLinksAsync()) and should perform
@@ -87,8 +88,7 @@ public class RxObservableCrawler
         // 4. Convert each page to an Observable stream of images
         //    asynchronously.
 
-        // TODO -- you fill in here replacing this statement with your
-        // solution.
+        // TODO -- you fill in here replacing null with your solution.
         return null;
     }
 
@@ -109,7 +109,7 @@ public class RxObservableCrawler
         // operator mergeWith() to merge all the images into a single
         // Observable stream.
 
-        // TODO -- you fill in here replacing this statement with your
+        // TODO -- you fill in here replacing 'return null' with your
         // solution.
         return null;
     }
@@ -139,7 +139,7 @@ public class RxObservableCrawler
         //    downloaded and transformed concurrently via the I/O
         //    scheduler.
 
-        // TODO -- you fill in here replacing this statement with your
+        // TODO -- you fill in here replacing 'return null' with your
         // solution.
         return null;
     }
@@ -165,9 +165,9 @@ public class RxObservableCrawler
         // 
         // 3. Again apply the flatMap() concurrency idiom to convert
         //    the stream of downloaded images into a stream of images
-        //    that are transformed in parallel.
+        //    are transformed in parallel.
 
-        // TODO -- you fill in here replacing this statement with your
+        // TODO -- you fill in here replacing 'return null' with your
         // solution.
         return null;
     }
@@ -197,8 +197,8 @@ public class RxObservableCrawler
         // 3. Use compose() and mapNotNull() to map the image URL to a
         //    possibly downloaded image.
 
-        // TODO -- you fill in here replacing this statement with your
-        // solution.
+        // TODO -- you fill in here replacing 'return null' with your
+        // solution.  
         return null;
     }
 
@@ -237,8 +237,8 @@ public class RxObservableCrawler
         if (runRemoteTransforms()) {
             return transformImageRemotely(image);
         } else {
-            // TODO -- you fill in here replacing this statement with
-            //  your solution.
+            // TODO -- you fill in here replacing 'return null' with
+            // your solution.
             return null;
         }
     }
@@ -252,7 +252,30 @@ public class RxObservableCrawler
      *         {@link Image} objects
      */
     protected Observable<Image> transformImageRemotely(Image image) {
-        // TODO - Please ignore this method in the current assignment.
+        // Get remote microservices API instance.
+        RemoteDataSource.TransformApi api =
+            getRemoteDataSource().getApi();
+
+        // Get the remote data source instance from the super class.
+        RemoteDataSource remoteDataSource = getRemoteDataSource();
+
+        // Call RemoteDataSource helper to build a MultipartBody.Part
+        // containing the image bytes.
+
+        // TODO -- you fill in here replacing null with your solution.
+        
+
+        // Call super class helper method to get the list of
+        // transform.  TODO -- you fill in here replacing null with
+        // your solution.
+        List<String> transformNames = null;
+
+        // Call api method to build a Flux stream of transforms that,
+        // once subscribed to, will using microservices to
+        // concurrently run all transform operations.
+
+        // TODO -- you fill in here replacing 'return null' with your
+        // solution.
         return null;
     }
 
@@ -308,7 +331,7 @@ public class RxObservableCrawler
                         .uncaughtException(Thread.currentThread(), e);
                     return;
                 } else if (e instanceof IllegalStateException) {
-                    // that's a bug in RxJava or in a custom operator
+                    // That's a bug in RxJava or in a custom operator.
                     Thread.currentThread().getUncaughtExceptionHandler()
                         .uncaughtException(Thread.currentThread(), e);
                     return;

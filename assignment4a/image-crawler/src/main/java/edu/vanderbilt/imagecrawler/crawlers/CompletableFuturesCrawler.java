@@ -245,7 +245,8 @@ public class CompletableFuturesCrawler
         // map(), collect(), and flatMap()), several completable
         // future methods (e.g., FuturesCollectorIntStream .toFuture()
         // and thenApply()), and various other methods (e.g.,
-        // getOrDownloadImageAsync() and transformImageAsync()).
+        // getOrDownloadImageAsync() in conjunction with
+        // managedBlockerDownloadImage() and transformImageAsync()).
 
         // TODO -- you fill in here replacing return null with your
         // solution.

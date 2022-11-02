@@ -127,7 +127,8 @@ public class ParallelStreamsCrawler // Loaded via reflection
         // Create and use a Java sequential stream to:
         // 1. Use a factory method to create a one-element stream
         //    containing just the pageUri.
-        // 2. Get or download the image from the given url.
+        // 2. Get or download the image from the given url using the
+        //    managedBlockerDownloadImage() method.
         // 3. Filter out a missing (null) page upon failure.
         // 4. Transform the image and return a count of the number of
         //    transforms applied.

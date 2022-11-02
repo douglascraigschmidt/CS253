@@ -250,12 +250,18 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
         mockkStatic(FuturesCollectorIntStream::class)
         val m0 = ""
         val m5 = mockk<Stream<CompletableFuture<Int>>>()
+        val m2 = mockk<IntStream>()
         val m3 = mockk<CompletableFuture<Int>>()
         val m8 = mockk<Stream<String>>()
         val m9 = mockk<CompletableFuture<IntStream>>()
         val m6 = mockk<Collector<CompletableFuture<Int>, Any, CompletableFuture<IntStream>>>()
 
+        every { m2.sum() } returns 88
         every { crawler.crawlPageAsync(m0, -99) } returns m3
+        every { m9.thenApply<Int>(any()) } answers {
+            assertThat(firstArg<Function<IntStream, Int>>().apply(m2)).isEqualTo(88)
+            m3
+        }
         every { m5.collect<CompletableFuture<IntStream>, CompletableFuture<Int>>(any()) } returns m9
         every { m8.map<CompletableFuture<Int>>(any()) } answers {
             firstArg<Function<String, CompletableFuture<Int>>>().apply(m0)
@@ -268,18 +274,21 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
             m8
         }
         every { FuturesCollectorIntStream.toFuture() } returns m6
-        every { m9.thenApply<Int>(any()) } returns m3
 
         assertThat(crawler.crawlHyperLinksOnPage(mockPage, -99)).isSameAs(m3)
 
         verify(exactly = 1) {
             m5.collect<CompletableFuture<IntStream>, CompletableFuture<Int>>(any())
             FuturesCollectorIntStream.toFuture()
+            m2.sum()
             m9.thenApply<Int>(any())
             mockPage.getPageElementsAsStringStream(*anyVararg())
             m8.map<CompletableFuture<Int>>(any())
+            crawler.crawlHyperLinksOnPage(any(), any())
             crawler.crawlPageAsync(m0, -99)
         }
+
+        confirmVerified(m2, m3, m5, m6, m8, m9, crawler, mockPage)
     }
 
     @Test
