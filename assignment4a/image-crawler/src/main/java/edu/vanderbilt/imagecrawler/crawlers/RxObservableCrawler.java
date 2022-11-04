@@ -72,7 +72,7 @@ public class RxObservableCrawler
     protected Observable<Image> crawlPageAsync(String pageUri,
                                                int depth) {
 
-        // This method should use Observable operators like just(),
+        // This method should use Observable operators like fromCallable(),
         // filter(), map(), and flatMap() (this latter operator should
         // call imagesOnPageAndPageLinksAsync()) and should perform
         // the following steps:
