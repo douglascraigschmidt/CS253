@@ -40,7 +40,7 @@ import edu.vanderbilt.imagecrawler.web.TransformedImage;
  * to all image crawler implementation strategies.
  */
 public abstract class ImageCrawler
-        implements Runnable {
+       implements Runnable {
     /**
      * Flag used to stop/cancel a crawl.
      */
@@ -200,7 +200,7 @@ public abstract class ImageCrawler
         // are enabled.
         if (!mLocalTransforms) {
             mRemoteDataSource =
-                    new RemoteDataSource(mController.mPlatform.getBaseUrl());
+                new RemoteDataSource(mController.mPlatform.getBaseUrl());
         }
     }
 
@@ -218,12 +218,12 @@ public abstract class ImageCrawler
 
         if (mStartTime != 0) {
             throw new IllegalStateException("The crawler is already " +
-                    "running.");
+                                            "running.");
         }
 
         if (mTransforms == null) {
             throw new IllegalStateException("Initialize() must be called " +
-                    "before run().");
+                                            "before run().");
         }
 
         // Start timing the test run.
@@ -239,7 +239,7 @@ public abstract class ImageCrawler
         throwExceptionIfCancelled();
 
         log("Crawl completed normally with %d images added to the cache.",
-                totalImages);
+            totalImages);
     }
 
     /**
@@ -270,18 +270,18 @@ public abstract class ImageCrawler
 
         // Return an array of all the IMG SRC URLs in this page.
         return page
-                // Select all the image elements in the page.
-                .getPageElementsAsUrls(Crawler.Type.IMAGE)
+            // Select all the image elements in the page.
+            .getPageElementsAsUrls(Crawler.Type.IMAGE)
 
-                // Convert the elements to a stream.
-                .stream()
+            // Convert the elements to a stream.
+            .stream()
 
-                // Remove duplicate image URL strings.
-                .distinct()
+            // Remove duplicate image URL strings.
+            .distinct()
 
-                // Trigger intermediate operations and add elements to the
-                // array.
-                .collect(toList());
+            // Trigger intermediate operations and add elements to the
+            // array.
+            .collect(toList());
     }
 
     /**
@@ -293,14 +293,14 @@ public abstract class ImageCrawler
 
         // Return an array of all the IMG SRC URLs in this page.
         return page
-                // Select all the image elements in the page.
-                .getPageElementsAsUrls(Crawler.Type.IMAGE)
+            // Select all the image elements in the page.
+            .getPageElementsAsUrls(Crawler.Type.IMAGE)
 
-                // Convert the elements to a stream.
-                .stream()
+            // Convert the elements to a stream.
+            .stream()
 
-                // Remove duplicate image URL strings.
-                .distinct();
+            // Remove duplicate image URL strings.
+            .distinct();
     }
 
     /**
@@ -332,7 +332,7 @@ public abstract class ImageCrawler
 
             // Save the image into the cache.
             try (OutputStream outputStream =
-                         item.getOutputStream(Cache.Operation.WRITE, image.size())) {
+                 item.getOutputStream(Cache.Operation.WRITE, image.size())) {
                 image.writeImage(outputStream);
             }
 
@@ -371,7 +371,7 @@ public abstract class ImageCrawler
             Image image = new Image(url, mNewImageFunction.apply(inputStream, item));
             // Save the image into the cache.
             try (OutputStream outputStream =
-                         item.getOutputStream(Cache.Operation.WRITE, image.size())) {
+                 item.getOutputStream(Cache.Operation.WRITE, image.size())) {
                 image.writeImage(outputStream);
             } catch (Exception e) {
                 throw ExceptionUtils.unchecked(e);
@@ -395,7 +395,7 @@ public abstract class ImageCrawler
      */
     public Image createImage(Image image, TransformedImage transformedImage) {
         try (InputStream inputStream =
-                     new ByteArrayInputStream(transformedImage.getBytes())) {
+             new ByteArrayInputStream(transformedImage.getBytes())) {
             String url = image.getSourceUrl().toString();
             String tag = transformedImage.getTransformName();
             return createImage(url, tag, inputStream);
@@ -421,7 +421,7 @@ public abstract class ImageCrawler
      * Factory method that makes a new {@code TransformDecoratorWithImage}.
      */
     protected TransformImageDecorator
-    makeTransformDecoratorWithImage(Transform transform, Image image) {
+        makeTransformDecoratorWithImage(Transform transform, Image image) {
         return new TransformImageDecorator(transform, image);
     }
 
@@ -441,7 +441,7 @@ public abstract class ImageCrawler
         // was created by a call to createNewCacheItem. Get that entry and
         // pass it to the CachingTransformerDecorator.
         Cache.Item item = mImageCache.getItem(
-                image.getSourceUrl().toString(), transform.getName());
+                                              image.getSourceUrl().toString(), transform.getName());
 
         return makeTransformDecoratorWithImage(transform, image).run(item);
     }
@@ -460,7 +460,7 @@ public abstract class ImageCrawler
      */
     public boolean createNewCacheItem(Image image, Transform transform) {
         log("Attempting to add a cache item for transform: %s",
-                image.getSourceUrl());
+            image.getSourceUrl());
 
         // Cache expects a group id string or null which defaults to "raw".
         String tag = transform != null ? transform.getName() : null;
@@ -504,9 +504,9 @@ public abstract class ImageCrawler
         // passing in the item as a parameter. Blocking download will
         // download the image and store it in the new cache file.
         Cache.Item item =
-                mImageCache.addOrGetItem(url.toString(),
-                        null, // No group id required
-                        this::blockingDownload);
+            mImageCache.addOrGetItem(url.toString(),
+                                     null, // No group id required
+                                     this::blockingDownload);
 
         // Now that we have a downloaded cached item, do the following:
         // 1. Get the cached item's input stream.
@@ -538,24 +538,24 @@ public abstract class ImageCrawler
      * @return a future to a transformed image.
      */
     protected CompletableFuture<Image> applyTransformAsync(
-            Transform transform,
-            Image image
-    ) {
+                                                           Transform transform,
+                                                           Image image
+                                                           ) {
         // Asynchronously transform an image.
         return CompletableFuture.supplyAsync(() -> {
-            // This method will only be called if a new empty
-            // cache entry was created by a check to
-            // createNewCacheItem(). Get that entry and pass
-            // it to the CachingTransformerDecorator.
-            Cache.Item item =
+                // This method will only be called if a new empty
+                // cache entry was created by a check to
+                // createNewCacheItem(). Get that entry and pass
+                // it to the CachingTransformerDecorator.
+                Cache.Item item =
                     getCache().getItem(
-                            image.getSourceUrl().toString(),
-                            transform.getName());
+                                       image.getSourceUrl().toString(),
+                                       transform.getName());
 
 
-            // Apply a transform on the image.
-            return makeTransformDecoratorWithImage(transform, image).run(item);
-        });
+                // Apply a transform on the image.
+                return makeTransformDecoratorWithImage(transform, image).run(item);
+            });
     }
 
     /**
@@ -642,13 +642,13 @@ public abstract class ImageCrawler
          * @return A list of new crawler instances.
          */
         public static List<ImageCrawler> newCrawlers(
-                List<CrawlerType> crawlerTypes,
-                Controller controller
-        ) {
+                                                     List<CrawlerType> crawlerTypes,
+                                                     Controller controller
+                                                     ) {
             return crawlerTypes
-                    .stream()
-                    .map(type -> newCrawler(type, controller))
-                    .collect(toList());
+                .stream()
+                .map(type -> newCrawler(type, controller))
+                .collect(toList());
         }
     }
 
@@ -685,8 +685,8 @@ public abstract class ImageCrawler
     protected List<String> getTransformNames() {
         // Build list of transform names for API call.
         return mTransforms
-                .stream()
-                .map(Transform::getName)
-                .collect(toList());
+            .stream()
+            .map(Transform::getName)
+            .collect(toList());
     }
 }

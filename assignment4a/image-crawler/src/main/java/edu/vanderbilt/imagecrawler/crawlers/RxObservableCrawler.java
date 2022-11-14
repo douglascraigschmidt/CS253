@@ -252,30 +252,7 @@ public class RxObservableCrawler
      *         {@link Image} objects
      */
     protected Observable<Image> transformImageRemotely(Image image) {
-        // Get remote microservices API instance.
-        RemoteDataSource.TransformApi api =
-            getRemoteDataSource().getApi();
-
-        // Get the remote data source instance from the super class.
-        RemoteDataSource remoteDataSource = getRemoteDataSource();
-
-        // Call RemoteDataSource helper to build a MultipartBody.Part
-        // containing the image bytes.
-
-        // TODO -- you fill in here replacing null with your solution.
-        
-
-        // Call super class helper method to get the list of
-        // transform.  TODO -- you fill in here replacing null with
-        // your solution.
-        List<String> transformNames = null;
-
-        // Call api method to build a Flux stream of transforms that,
-        // once subscribed to, will using microservices to
-        // concurrently run all transform operations.
-
-        // TODO -- you fill in here replacing 'return null' with your
-        // solution.
+        // @@ You don't need to implement this method!
         return null;
     }
 
