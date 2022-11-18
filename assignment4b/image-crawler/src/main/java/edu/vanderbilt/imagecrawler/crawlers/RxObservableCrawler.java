@@ -73,8 +73,8 @@ public class RxObservableCrawler
                                                int depth) {
         // This method should use Observable operators like
         // fromCallable(), filter(), map(), and flatMap() (this latter
-        // operator should call imagesOnPageAndPageLinksAsync()) and
-        // should perform the following steps:
+        // operator should call processPageAsync()) and should perform
+        // the following steps:
         // 
         // 1. Use a factory method to create an Observable that emits
         //    this pageUri.
