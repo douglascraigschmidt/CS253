@@ -169,6 +169,10 @@ class MainViewModel(app: Application) : BaseViewModel(app), Cache.Observer, KtLo
             "startCrawl() called when a crawl is $state"
         }
 
+        // Clear the mutable live data instance, cache, and
+        // local hashMap.
+        clearAll()
+
         // Must be set in main thread
         state = RUNNING
 
@@ -177,10 +181,6 @@ class MainViewModel(app: Application) : BaseViewModel(app), Cache.Observer, KtLo
                 "MainViewModel.startCrawl: thread " +
                         "[${Thread.currentThread().id}] has interrupted flag set"
             }
-
-            // Clear the mutable live data instance, cache, and
-            // local hashMap.
-            clearAll()
 
             // Build a new crawler using the specified strategy.
 

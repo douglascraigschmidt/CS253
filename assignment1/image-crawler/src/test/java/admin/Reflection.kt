@@ -2,6 +2,7 @@ package admin
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
+import kotlin.reflect.KClass
 
 /**
  *  Generic extension function that finds the receiver's first member
@@ -90,6 +91,29 @@ inline fun <T> Field.runWithAccess(any: Any, block: Field.() -> T): T {
     // Restore original accessibility state.
     isAccessible = wasAccessible
     return result
+}
+
+inline fun <reified T> Any.value(type: Class<*>): T {
+    val field = this::class.java.findField(type)
+    return field.runWithAccess(this) {
+        field.get(this@value) as T
+    }
+}
+
+inline fun <reified T> Any.primitiveValue(type: KClass<*>, name: String = ""): T {
+    return javaClass.findField(type.javaPrimitiveType!!, name).let {
+        it.runWithAccess(this) {
+            it.get(this) as T
+        }
+    }
+}
+
+fun Any.primitiveValueHasModifier(modifier: Int, type: KClass<*>, name: String = ""): Boolean {
+    return javaClass.findField(type.javaPrimitiveType!!, name).let {
+        it.runWithAccess(this) {
+            (it.modifiers and modifier) != 0
+        }
+    }
 }
 
 fun Field.isStatic(): Boolean = Modifier.isStatic(modifiers)

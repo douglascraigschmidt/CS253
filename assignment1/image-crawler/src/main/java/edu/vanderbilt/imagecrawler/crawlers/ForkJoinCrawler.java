@@ -28,7 +28,7 @@ import edu.vanderbilt.imagecrawler.web.WebPageElement;
  * local file system, transformed, and then stored in files on the
  * Android device, where they can be displayed to the user.  This
  * implementation should not use any Java streams features.
- * 
+ * <p>
  * This implementation should use no Java streams features and should
  * reuse existing code by make calls to the appropriate methods in the
  * ImageCrawler super class (such as getOrDownloadImage(),
@@ -38,7 +38,7 @@ import edu.vanderbilt.imagecrawler.web.WebPageElement;
  * thoroughly or it will not be reviewed.
  */
 public class ForkJoinCrawler
-       extends ImageCrawler {
+        extends ImageCrawler {
     /**
      * Perform the web crawl using the Java common fork-join pool.
      *
@@ -59,11 +59,11 @@ public class ForkJoinCrawler
      * @param image     The {@link Image} to transform
      * @param transform The {@link Transform} to perform
      * @return A new instance of {@link PerformTransformTask} returned as
-     *         as {@link ForkJoinTask}
+     * as {@link ForkJoinTask}
      */
     protected ForkJoinTask<Image> makePerformTransformTask
-        (Image image,
-         Transform transform) {
+    (Image image,
+     Transform transform) {
         // TODO -- you fill in here replacing 'return null' with your
         // solution.
         return null;
@@ -92,7 +92,7 @@ public class ForkJoinCrawler
      * @return A new {@link URLCrawlerTask} instance
      */
     protected ForkJoinTask<Integer> makeURLCrawlerTask
-        (String pageUri, int depth) {
+    (String pageUri, int depth) {
         // TODO -- you fill in here replacing 'return null' with your
         // solution that makes a new URLCrawlerTask.
         return null;
@@ -104,21 +104,23 @@ public class ForkJoinCrawler
      * forked/joined in parallel via the Java common fork-join pool.
      */
     public class URLCrawlerTask
-        extends RecursiveTask<Integer> {
+            extends RecursiveTask<Integer> {
         // TODO -- add necessary fields.
+        
 
         /**
          * Constructor initializes the fields.
          */
         URLCrawlerTask(String pageUri, int depth) {
             // TODO -- initialize any necessary fields.
+            
         }
 
         /**
          * Perform a web crawl at the URL passed to the constructor.
          *
          * @return The number of images downloaded/transformed/stored
-         *         starting at the URL passed to the constructor
+         * starting at the URL passed to the constructor
          */
         @Override
         protected Integer compute() {
@@ -153,7 +155,7 @@ public class ForkJoinCrawler
          * page via a URLCrawlerTask object, and (3) return the count
          * of all images processed during the crawl.
          *
-         * @param page The {@link Crawler.Page} containing the HTML
+         * @param page  The {@link Crawler.Page} containing the HTML
          * @param depth The current depth of the recursive processing
          * @return The count of the number of images processed
          */
@@ -198,8 +200,9 @@ public class ForkJoinCrawler
      * parallel by the Java common fork-join pool.
      */
     public class ProcessImageTask
-        extends RecursiveTask<Integer> {
+            extends RecursiveTask<Integer> {
         // TODO -- Add any necessary fields here.
+        
 
         /**
          * Constructor initializes the fields.
@@ -208,6 +211,7 @@ public class ForkJoinCrawler
          */
         ProcessImageTask(URL imageUri) {
             // TODO -- initialize any necessary fields.
+            
         }
 
         /**
@@ -271,8 +275,9 @@ public class ForkJoinCrawler
      * parallel by the Java common fork-join pool.
      */
     public class PerformTransformTask
-        extends RecursiveTask<Image> {
+            extends RecursiveTask<Image> {
         // TODO -- add necessary fields.
+        
 
         /**
          * Constructor initializes the fields.
@@ -306,8 +311,8 @@ public class ForkJoinCrawler
      *
      * @param supplier The {@link Supplier} to call
      * @return The result of calling the {@link Supplier} in the
-     *         context of the Java common fork-join pool {@link
-     *         ForkJoinPool.ManagedBlocker} mechanism
+     * context of the Java common fork-join pool {@link
+     * ForkJoinPool.ManagedBlocker} mechanism
      */
     @Override
     protected <T> T callInManagedBlocker(Supplier<T> supplier) {
