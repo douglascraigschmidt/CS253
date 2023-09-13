@@ -249,13 +249,8 @@ class SettingsDialogFragment :
     private fun configureTransformsLocation() {
         val supportedList = listOf(
             CrawlerType.SEQUENTIAL_LOOPS,
-            CrawlerType.SEQUENTIAL_STREAMS,
-            CrawlerType.PARALLEL_STREAMS,
-            CrawlerType.COMPLETABLE_FUTURES,
-            CrawlerType.RX_OBSERVABLE,
-            CrawlerType.RX_FLOWABLE,
-            CrawlerType.PROJECT_REACTOR_FLUX,
-            CrawlerType.PROJECT_REACTOR_PARALLEL_FLUX
+            CrawlerType.FORK_JOIN,
+            CrawlerType.FORK_JOIN_EX
         )
         val remoteSupported = supportedList.contains(Settings.crawlStrategy)
 
