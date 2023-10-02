@@ -1,0 +1,12 @@
+.idea/*
+!.idea/runConfigurations
+.gradle/
+build/
+image-cache/
+captures/
+.DS_Store
+*.iml
+*.log
+local.properties
+zip/
+AUTOGRADER_SUBMISSION/
