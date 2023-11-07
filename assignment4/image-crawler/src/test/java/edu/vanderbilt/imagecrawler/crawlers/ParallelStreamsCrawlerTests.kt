@@ -108,13 +108,13 @@ class ParallelStreamsCrawlerTests : AssignmentTests() {
         }
         every { hs.add(any()) } returnsMany bl
         every { pc.accept(any()) } just Runs
-        every { ss.mapMulti<Crawler.Page>(any()) } answers {
+        every { ss.mapMulti(any<BiConsumer<String, Consumer<Crawler.Page>>>()) } answers {
             firstArg<BiConsumer<String, Consumer<Crawler.Page>>>().accept("", pc)
             ps
         }
 
-        every { ps.mapMulti<Image>(any()) } answers {
-            firstArg<BiConsumer<Crawler.Page, Consumer<Stream<Image>>>>().accept(mockk(), mockk())
+        every { ps.mapMulti(any<BiConsumer<Crawler.Page, Consumer<Image>>>()) } answers {
+            firstArg<BiConsumer<Crawler.Page, Consumer<Image>>>().accept(mockk(), mockk())
             si
         }
 
@@ -130,8 +130,8 @@ class ParallelStreamsCrawlerTests : AssignmentTests() {
             wpc.getPage(any())
             crawler.callInManagedBlocker<Crawler.Page>(any())
             pc.accept(any())
-            ss.mapMulti<Crawler.Page>(any())
-            ps.mapMulti<Image>(any())
+            ss.mapMulti(any<BiConsumer<String, Consumer<Crawler.Page>>>())
+            ps.mapMulti(any<BiConsumer<Crawler.Page, Consumer<Image>>>())
             crawler.processPage(any(), any())
             si.forEach(any())
             crawler.crawlPage(any(), any())
@@ -324,6 +324,9 @@ class ParallelStreamsCrawlerTests : AssignmentTests() {
         confirmVerified(crawler, ca, mi)
     }
 
+    //TODO: Check for null passed into accept() method all mapMulti().
+    //TODO: check order of calls to ensure that createNewCachedItem is
+    //called from filter and not called mapMulti.
     @Test
     fun `transformImage() uses expected chained method calls`() {
         val lt = mockk<List<Transform>>()
@@ -341,7 +344,9 @@ class ParallelStreamsCrawlerTests : AssignmentTests() {
             st
         }
         val ci = mockk<Consumer<Image>>()
-        every { ci.accept(any()) } just Runs
+        every { ci.accept(any()) } answers {
+            assertThat(firstArg<Image?>()).isNotNull
+        }
         every { st.mapMulti<Image>(any()) } answers {
             firstArg<BiConsumer<Transform, Consumer<Image>>>().accept(mockk(), ci)
             si

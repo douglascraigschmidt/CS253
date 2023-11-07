@@ -2,7 +2,6 @@ package edu.vanderbilt.imagecrawler.crawlers
 
 import admin.AssignmentTests
 import admin.findField
-import admin.value
 import edu.vanderbilt.imagecrawler.platform.Cache
 import edu.vanderbilt.imagecrawler.transforms.Transform
 import edu.vanderbilt.imagecrawler.utils.BlockingTask
@@ -172,6 +171,69 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
     }
 
     @Test
+    fun imagesOnPageAndPageLinksAsync() {
+        val i1 = mockk<CompletableFuture<Crawler.Page>>()
+        val i2 = 99
+        val m1 = mockk<CompletableFuture<Int>>()
+        val m2 = mockk<CompletableFuture<Int>>()
+        val e1 = mockk<CompletableFuture<Int>>()
+        every { crawler.imagesOnPageAsync(i1) } answers { m1 }
+        every { crawler.imagesOnPageLinksAsync(i1, i2 + 1) } answers { m2 }
+        every { crawler.combineResults(m1, m2) } answers { e1 }
+        assertThat(crawler.imagesOnPageAndPageLinksAsync(i1, i2)).isSameAs(e1)
+
+        verify(exactly = 1) {
+            crawler.imagesOnPageAsync(i1)
+            crawler.imagesOnPageLinksAsync(i1, i2 + 1)
+            crawler.combineResults(m1, m2)
+            crawler.imagesOnPageAndPageLinksAsync(i1, i2)
+        }
+    }
+
+    @Test
+    fun `imagesOnPageAndPageLinksAsync produces the correct result`() {
+        val fp = mockk<CompletableFuture<Crawler.Page>>()
+        val fi = mockk<CompletableFuture<Int>>()
+        val fi2 = mockk<CompletableFuture<Int>>()
+        val e = mockk<CompletableFuture<Int>>()
+
+        every { crawler.imagesOnPageAsync(fp) } returns fi
+        every { crawler.imagesOnPageLinksAsync(fp, any()) } answers {
+            assertThat(secondArg<Int>()).describedAs("incorrect depth parameter").isEqualTo(-98)
+            fi2
+        }
+        every { crawler.combineResults(fi, fi2) } returns e
+
+        crawler.imagesOnPageAndPageLinksAsync(fp, -99)
+
+        verify(exactly = 1) {
+            crawler.imagesOnPageAsync(fp)
+            crawler.imagesOnPageLinksAsync(fp, any())
+            crawler.combineResults(any(), any())
+            crawler.imagesOnPageAndPageLinksAsync(fp, -99)
+        }
+
+        verifyOneOf(
+            "combineResults call is not valid",
+            { verify(exactly = 1) { crawler.combineResults(fi, fi2) } },
+            { verify(exactly = 1) { crawler.combineResults(fi2, fi) } }
+        )
+
+        confirmVerified(crawler, fp, fi, fi2, e)
+    }
+
+    @Test
+    fun `getPageAsync() is efficient`() {
+        crawler.mWebPageCrawler = mockk()
+        mockkStatic(CompletableFuture::class)
+        val fi = mockk<CompletableFuture<Int>>()
+        every { CompletableFuture.supplyAsync<Int>(any()) } returns fi
+        assertThat(crawler.getPageAsync("https://www.no.where")).isNotNull
+        verify(exactly = 1) { CompletableFuture.supplyAsync<Int>(any()) }
+        verify(exactly = 0) { (fi.thenApply<Int>(any())) }
+    }
+
+    @Test
     fun `getPageAsync() has correct solution`() {
         val cfp = mockk<CompletableFuture<Crawler.Page>>()
         val cps = mockk<Crawler.Page>()
@@ -203,18 +265,7 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
     }
 
     @Test
-    fun `getPageAsync() is efficient`() {
-        crawler.mWebPageCrawler = mockk()
-        mockkStatic(CompletableFuture::class)
-        val fi = mockk<CompletableFuture<Int>>()
-        every { CompletableFuture.supplyAsync<Int>(any()) } returns fi
-        assertThat(crawler.getPageAsync("https://www.no.where")).isNotNull
-        verify(exactly = 1) { CompletableFuture.supplyAsync<Int>(any()) }
-        verify(exactly = 0) { (fi.thenApply<Int>(any())) }
-    }
-
-    @Test
-    fun `getImagesOnPageAsync() returns the correct result`() {
+    fun `imagesOnPageAsync() returns the correct result`() {
         val mockFuture = mockk<CompletableFuture<Crawler.Page>>()
         val mockUrlsFuture = mockk<CompletableFuture<List<URL>>>()
         val expected = mockk<CompletableFuture<Void>>()
@@ -232,7 +283,7 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
     }
 
     @Test
-    fun crawlHyperLinksOnPageAsync() {
+    fun imagesOnPageLinksAsync() {
         val cfp = mockk<CompletableFuture<Crawler.Page>>()
         val d = 99
         val cfi = mockk<CompletableFuture<Int>>()
@@ -250,6 +301,40 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
             crawler.imagesOnPageLinksAsync(cfp, d)
         }
         confirmVerified(cfp, cfi, crawler)
+    }
+
+    @Test
+    fun `imagesOnPageLinksAsync() uses the correct lambda`() {
+        val pf = mockk<CompletableFuture<Crawler.Page>>()
+        val expected = mockk<CompletableFuture<Int>>()
+
+        every { pf.thenComposeAsync<Int>(any()) } answers {
+            firstArg<Function<Crawler.Page, CompletableFuture<Int>>>().apply(mockPage)
+        }
+        every { crawler.crawlHyperLinksOnPage(mockPage, -99) } answers {
+            expected
+        }
+        assertThat(crawler.imagesOnPageLinksAsync(pf, -99)).isSameAs(expected)
+        verify(exactly = 1) {
+            pf.thenComposeAsync<Void>(any())
+            crawler.crawlHyperLinksOnPage(mockPage, -99)
+            crawler.imagesOnPageLinksAsync(any(), any())
+        }
+        confirmVerified(crawler, pf)
+    }
+
+    @Test
+    fun `combineResults() returns the correct result`() {
+        val m3 = mockk<CompletableFuture<Int>>()
+        val m1 = mockk<CompletableFuture<Int>>()
+        val m2 = mockk<CompletableFuture<Int>>()
+        every { m3.thenCombine<Int, Int>(m1, any()) } returns m2
+        crawler.combineResults(m3, m1)
+        verify(exactly = 1) {
+            crawler.combineResults(any(), any())
+            m3.thenCombine<Int, Int>(m1, any())
+        }
+        confirmVerified(crawler, m2, m3, m1)
     }
 
     @Test
@@ -299,6 +384,68 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
     }
 
     @Test
+    fun processImagesAsync() {
+        val scfi = mockk<Stream<CompletableFuture<Int>>>()
+        val su = mockk<Stream<URL>>()
+        val u = mockk<URL>()
+        val scfim = mockk<Stream<CompletableFuture<Image>>>()
+        val cfis = mockk<CompletableFuture<IntStream>>()
+        val ci = mockk<Cache.Item>()
+        val i = mockk<Image>()
+        val fcis = mockk<FuturesCollectorIntStream>()
+        val cfim = mockk<CompletableFuture<Image>>()
+        val cfi = mockk<CompletableFuture<Int>>()
+        mockkStatic(FuturesCollectorIntStream::class)
+        mockkStatic(IntStream::class)
+        every { crawler.transformImageAsync(any()) } answers { scfi }
+        every { scfim.flatMap<CompletableFuture<Int>>(any()) } answers {
+            firstArg<Function<CompletableFuture<Image>, Stream<out CompletableFuture<Int>>>>().apply(cfim)
+            scfi
+        }
+        every { FuturesCollectorIntStream.toFuture() } returns fcis
+        every { cfis.thenApply<Int>(any()) } answers {
+            cfi
+        }
+        every { su.map<CompletableFuture<Image>>(any()) } answers {
+            firstArg<Function<URL, CompletableFuture<Image>>>().apply(u)
+            scfim
+        }
+        every { crawler.getOrDownloadImageAsync(any(), any()) } answers {
+            secondArg<Consumer<Cache.Item>>().accept(ci)
+            cfim
+        }
+        every { scfi.collect(any<Collector<Any, Any, Any>>()) } answers {
+            cfis
+        }
+        every { crawler.managedBlockerDownloadImage(any()) } answers { i }
+        assertThat(crawler.processImagesAsync(su)).isSameAs(cfi)
+        verify(exactly = 1) {
+            crawler.transformImageAsync(any())
+            crawler.managedBlockerDownloadImage(any())
+            cfis.thenApply<Int>(any())
+            su.map<CompletableFuture<Image>>(any())
+            scfim.flatMap<CompletableFuture<Int>>(any())
+            crawler.processImagesAsync(su)
+            crawler.getOrDownloadImageAsync(any(), any())
+            scfi.collect(any<Collector<Any, Any, Any>>())
+            FuturesCollectorIntStream.toFuture()
+        }
+        confirmVerified(
+            cfim,
+            su,
+            crawler,
+            scfim,
+            ci,
+            scfi,
+            cfi,
+            cfis,
+            i,
+            fcis,
+            u,
+        )
+    }
+
+    @Test
     fun transformImageAsync() {
         val m3 = mockk<CompletableFuture<Image>>()
         val m7 = mockk<CompletableFuture<Image>>()
@@ -325,26 +472,6 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
     }
 
     @Test
-    fun `crawlHyperLinksOnPageAsync() uses the correct lambda`() {
-        val pf = mockk<CompletableFuture<Crawler.Page>>()
-        val expected = mockk<CompletableFuture<Int>>()
-
-        every { pf.thenComposeAsync<Int>(any()) } answers {
-            firstArg<Function<Crawler.Page, CompletableFuture<Int>>>().apply(mockPage)
-        }
-        every { crawler.crawlHyperLinksOnPage(mockPage, -99) } answers {
-            expected
-        }
-        assertThat(crawler.imagesOnPageLinksAsync(pf, -99)).isSameAs(expected)
-        verify(exactly = 1) {
-            pf.thenComposeAsync<Void>(any())
-            crawler.crawlHyperLinksOnPage(mockPage, -99)
-            crawler.imagesOnPageLinksAsync(any(), any())
-        }
-        confirmVerified(crawler, pf)
-    }
-
-    @Test
     fun `crawlHyperLinksOnPageAsync() returns the correct result`() {
         val m1 = mockk<CompletableFuture<Crawler.Page>>()
         val m0 = mockk<CompletableFuture<Int>>()
@@ -356,20 +483,6 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
             m1.thenComposeAsync<Void>(any())
         }
         confirmVerified(m1, m0, crawler)
-    }
-
-    @Test
-    fun `combineResults() returns the correct result`() {
-        val m3 = mockk<CompletableFuture<Int>>()
-        val m1 = mockk<CompletableFuture<Int>>()
-        val m2 = mockk<CompletableFuture<Int>>()
-        every { m3.thenCombine<Int, Int>(m1, any()) } returns m2
-        crawler.combineResults(m3, m1)
-        verify(exactly = 1) {
-            crawler.combineResults(any(), any())
-            m3.thenCombine<Int, Int>(m1, any())
-        }
-        confirmVerified(crawler, m2, m3, m1)
     }
 
     @Test
@@ -451,6 +564,7 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
         }
         confirmVerified(crawler, m2, m3, m4, m5, m7)
     }
+
     @Test
     fun `transformImage handles null images results`() {
         mockkStatic(Stream::class)
@@ -490,58 +604,6 @@ class CompletableFuturesCrawlerTests : AssignmentTests() {
             m5.accept(any())
         }
         confirmVerified(crawler, m2, m3, m4, m5, m7)
-    }
-
-    @Test
-    fun imagesOnPageAndPageLinksAsync() {
-        val i1 = mockk<CompletableFuture<Crawler.Page>>()
-        val i2 = 99
-        val m1 = mockk<CompletableFuture<Int>>()
-        val m2 = mockk<CompletableFuture<Int>>()
-        val e1 = mockk<CompletableFuture<Int>>()
-        every { crawler.imagesOnPageAsync(i1) } answers { m1 }
-        every { crawler.imagesOnPageLinksAsync(i1, i2 + 1) } answers { m2 }
-        every { crawler.combineResults(m1, m2) } answers { e1 }
-        assertThat(crawler.imagesOnPageAndPageLinksAsync(i1, i2)).isSameAs(e1)
-
-        verify(exactly = 1) {
-            crawler.imagesOnPageAsync(i1)
-            crawler.imagesOnPageLinksAsync(i1, i2 + 1)
-            crawler.combineResults(m1, m2)
-            crawler.imagesOnPageAndPageLinksAsync(i1, i2)
-        }
-    }
-
-    @Test
-    fun `imagesOnPageAndPageLinksAsync produces the correct result`() {
-        val fp = mockk<CompletableFuture<Crawler.Page>>()
-        val fi = mockk<CompletableFuture<Int>>()
-        val fi2 = mockk<CompletableFuture<Int>>()
-        val e = mockk<CompletableFuture<Int>>()
-
-        every { crawler.imagesOnPageAsync(fp) } returns fi
-        every { crawler.imagesOnPageLinksAsync(fp, any()) } answers {
-            assertThat(secondArg<Int>()).describedAs("incorrect depth parameter").isEqualTo(-98)
-            fi2
-        }
-        every { crawler.combineResults(fi, fi2) } returns e
-
-        crawler.imagesOnPageAndPageLinksAsync(fp, -99)
-
-        verify(exactly = 1) {
-            crawler.imagesOnPageAsync(fp)
-            crawler.imagesOnPageLinksAsync(fp, any())
-            crawler.combineResults(any(), any())
-            crawler.imagesOnPageAndPageLinksAsync(fp, -99)
-        }
-
-        verifyOneOf(
-            "combineResults call is not valid",
-            { verify(exactly = 1) { crawler.combineResults(fi, fi2) } },
-            { verify(exactly = 1) { crawler.combineResults(fi2, fi) } }
-        )
-
-        confirmVerified(crawler, fp, fi, fi2, e)
     }
 
     @Test

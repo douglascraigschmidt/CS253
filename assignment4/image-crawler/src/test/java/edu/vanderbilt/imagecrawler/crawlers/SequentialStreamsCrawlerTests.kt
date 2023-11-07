@@ -11,7 +11,6 @@ import edu.vanderbilt.imagecrawler.web.WebPageElement
 import io.mockk.MockKAnnotations
 import io.mockk.confirmVerified
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -26,17 +25,10 @@ import java.util.function.Function
 import java.util.function.Predicate
 import java.util.stream.Stream
 
+//TODO: Check for null passed into accept() method all mapMulti().
 class SequentialStreamsCrawlerTests : AssignmentTests() {
     @SpyK
     var crawler = SequentialStreamsCrawler()
-
-    @MockK
-    lateinit var uris: ConcurrentHashMap.KeySetView<String, Boolean>
-
-    @MockK
-    lateinit var image: Image
-
-    private val esi = mockk<Stream<Image>>()
 
     @Before
     fun before() {
